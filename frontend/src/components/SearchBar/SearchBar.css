@@ -1,0 +1,22 @@
+.search-container{
+    width: 100%;
+    max-width: 30vw;
+    align-items: center;
+}
+
+.search-input{
+    width: 20vw;
+    padding: 5px 10px;
+    border-radius: 50px;
+    border: 2px solid rgb(36, 106, 164);
+}
+
+.search-btn{
+    padding: 7px 12px;
+    border-radius: 50px;
+    border: 0;
+    color: white;
+    background-color: rgb(36, 106, 164);
+    margin-left: 5px;
+    text-align: center;
+}

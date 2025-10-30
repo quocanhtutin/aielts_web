@@ -1,0 +1,209 @@
+.navbarcom{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    background-color: white;
+    padding: 10px 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: box-shadow 0.8s ease, background 0.8s ease;
+}
+.navbarcom.scrolled{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 5px 100px;
+}
+.navbarcom .logo{
+    width: 150px;
+}
+.navbar-menu{
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    color: white;
+    font-size: 18px;
+}
+.navbar-right{
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.navbarcom button{
+    background: transparent;
+    font-size: 18px;
+    color: rgb(36, 106, 164);
+    border: 2px solid rgb(36, 106, 164);
+    padding: 8px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+    /* font-family: 'Times New Roman', Times, serif; */
+}
+
+.navbarcom button:hover{
+    background-color: rgb(36, 106, 164);
+    color: white;
+}
+
+.navbarcom .active{
+    padding-bottom: 2px;
+    border-bottom: 2px solid rgb(36, 106, 164);
+}
+
+.navbarcom li{
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+}
+
+.navbar-search-icon{
+    position: relative;
+}
+
+.navbar-search-icon .dot{
+    position: absolute;
+    min-width: 10px;
+    min-height: 10px;
+    background-color: tomato;
+    border-radius: 5px;
+    top: -8px;
+    right: -8px;
+}
+
+.navbarcom h1{
+    font-size: 40px;
+    color: rgb(36, 106, 164);
+    font-family: "Arial Black" ;
+    text-decoration: none;
+    cursor: pointer;
+}
+.navbar-profile{
+    position: relative;
+}
+.nav-profile-dropdown{
+    position: absolute;
+    display: none;
+    right: 0;
+    z-index: 1;
+}
+.navbar-profile:hover .nav-profile-dropdown{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #f9f3f2;
+    padding: 12px 25px;
+    border-radius: 10px;
+    /* border: 1px solid #60402b; */
+    /* outline: 2px solid white; */
+    list-style: none;
+   
+}
+.nav-profile-dropdown li{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+.nav-profile-dropdown img{
+    width: 20px;
+}
+.nav-profile-dropdown li:hover{
+    color: #60402b;
+}
+.navbar-menu a {
+    text-decoration: none;
+    color: black;
+}
+
+@media (max-width: 1050px){
+    .navbarcom .logo {
+        width: 140px;
+    }
+    .navbar-menu{
+        gap: 20px;
+        font-size: 17px;
+    }
+    .navbar-right{
+        gap: 30px;
+    }
+    .navbar-right img{
+        width: 22px;
+    }
+    .navbar-right button{
+        padding: 8px 25px;
+    }
+}
+@media (max-width: 900px){
+    .navbarcom .logo {
+        width: 120px;
+    }
+    .navbar-menu{
+        gap: 15px;
+        font-size: 16px;
+    }
+    .navbar-right{
+        gap: 20px;
+    }
+    .navbar-right img{
+        width: 20px;
+    }
+    .navbar-right button{
+        padding: 7px 20px;
+        font-size: 15px;
+    }
+}
+@media (max-width: 750px){
+    .navbar-menu{
+        display: none;
+    }
+}
+
+/* Dropdown Button */
+.dropbtn {
+    color: black;
+  border: none;
+  cursor: pointer;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 115px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+.dropdown-content .logout:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content .logout {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}

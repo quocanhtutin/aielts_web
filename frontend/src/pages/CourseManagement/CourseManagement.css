@@ -1,0 +1,78 @@
+.add-container{
+    width: 100%;
+    padding: 100px 100px 30px 100px;
+    position: relative;
+}
+.flex-row{
+    width: 100%;
+    display: flex;
+}
+.add{
+    width: 100%;
+    color: #6d6d6d;
+    font-size: 16px;
+    background-color: whitesmoke;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 5px 5px rgba(0, 0, 0, 0.347);
+
+}
+.add form{
+    gap:20px;
+
+}
+.add-img-upload{
+    min-width: 25%;
+    max-width: 25%;
+    max-height: 260px;
+    margin-right: 20px;
+    
+}
+.add-img-upload img{
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    margin-top: 10px;
+    border-radius: 10px;
+    object-fit:cover;
+}
+.add-product-name, .add-product-description{
+    width: 100%;
+}
+.add-product-name input, .add-product-description textarea{
+    padding: 10px;
+    width: 100%;
+}
+.add-category-price{
+    display: flex;
+    gap: 30px;
+}
+.add-category-price select, .add-category-price input{
+    /* max-width: 120px; */
+    padding: 10px;
+    width: 50%;
+}
+.add-btn {
+    border: none;
+    color: white;
+    font-weight: 500;
+    font-size: 17px;
+    padding: 0.6vw 1.5vw;
+    background-color: rgb(36, 106, 164);
+    font-size: max(1vm, 20px);
+    border-radius: 20px;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 10px;
+    float: right;
+}
+.add-detail{
+    width: 100%;
+}
+.add-category, .add-price {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    width: 50%;
+}

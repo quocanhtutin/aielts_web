@@ -1,0 +1,217 @@
+/* Nền mờ phủ toàn màn hình */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #00000090;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-container {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 450px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.25s ease;
+  position: relative;
+  max-height: 80vh; /* giới hạn chiều cao tối đa bằng 80% chiều cao màn hình */
+  overflow-y: auto; /* bật thanh cuộn dọc khi nội dung vượt quá */
+}
+
+/* Tùy chỉnh thanh cuộn (cho Chrome, Edge, Safari) */
+.popup-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-container::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 4px;
+}
+
+.popup-container::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Header popup */
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.popup-header h3 {
+  margin: 0;
+  color: #222;
+}
+
+.close-btn {
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Form */
+.popup-form .form-group {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-form label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.popup-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Action buttons */
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.submit-btn {
+  background: #2e89ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background: #ccc;
+  color: #222;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.submit-btn:hover {
+  background: #1b6ee0;
+}
+
+.cancel-btn:hover {
+  background: #b0b0b0;
+}
+/* Form nhập câu hỏi */
+.question-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap; /* tự xuống hàng nếu nhỏ */
+}
+
+.question-form input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.add-question-btn,
+.close-question-btn {
+  background: #2e89ff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.close-question-btn {
+  background: #ccc;
+  color: #222;
+}
+
+.add-question-btn:hover {
+  background: #1b6ee0;
+}
+
+.close-question-btn:hover {
+  background: #aaa;
+}
+
+/* Danh sách câu hỏi đã thêm */
+.question-list {
+  margin-top: 5px;
+  /* max-height: 150px;
+  overflow-y: auto; */
+  padding-top: 8px;
+}
+
+.question-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.question-item span {
+  font-size: 14px;
+}
+
+.question-item .delete-btn {
+  color: #ff4d4f;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.file-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;  
+}
+
+.file-preview .delete-btn {
+  color: #ff4d4f;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.question-item .delete-btn:hover {
+  color: #e60000;
+}
+
