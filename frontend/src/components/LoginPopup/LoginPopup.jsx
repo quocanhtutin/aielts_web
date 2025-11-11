@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react'
 import './LoginPopup.css'
 import { assets } from '../../assets/assets'
 import { StoreContext } from '../../context/StoreContext.jsx'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const LoginPopup = ({ setShowLogin }) => {
@@ -15,6 +16,8 @@ const LoginPopup = ({ setShowLogin }) => {
         password: "",
         phone: ""
     })
+
+    const navigate = useNavigate()
 
     const onChangeHandler = (event) => {
         const name = event.target.name;
@@ -43,6 +46,7 @@ const LoginPopup = ({ setShowLogin }) => {
             console.log(response.data.name, response.data.email, response.data.phone, response.data.role)
             // localStorage.setItem("token", response.data.token);
             setShowLogin(false)
+            navigate("/")
         }
         else {
             alert(response.data.message)

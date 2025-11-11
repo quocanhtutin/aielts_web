@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { StoreContext } from '../../context/StoreContext'
 import './CourseDetail.css'
 import Reveal from '../../components/Reveal/Reveal.jsx'
+import Footer from '../../components/Footer/Footer.jsx'
 
 const CourseDetail = () => {
     const { id } = useParams()
@@ -27,8 +28,8 @@ const CourseDetail = () => {
                     <h2>Mô tả</h2>
                     <p>{course.description}</p>
                 </div>
-                {/* nếu muốn hiển thị danh sách bài học thì render course.lessons ở đây */}
             </div>
+            <Footer />
         </Reveal>
     )
 }

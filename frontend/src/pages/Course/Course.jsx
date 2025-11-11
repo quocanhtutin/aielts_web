@@ -1,15 +1,15 @@
 import React, { useState, useContext } from 'react'
 import SearchBar from '../../components/SearchBar/SearchBar';
-import Reveal from '../../components/Reveal/Reveal';
 import CourseItem from '../../components/CourseItem/CourseItem';
 import './Course.css'
 import { StoreContext } from '../../context/StoreContext';
-import { div } from 'framer-motion/client';
+import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer/Footer';
 
 const Course = () => {
 
     const { courses } = useContext(StoreContext)
-
+    const navigate = useNavigate()
     const [filteredItems, setFilteredItems] = useState(courses);
 
     const handleSearch = (searchTerm) => {
@@ -23,17 +23,18 @@ const Course = () => {
         <div>
             <div className='courses-container'>
                 <SearchBar className="search-bar" onSearch={handleSearch} />
-
+                <h2>Khóa học</h2>
                 <div className='course-display-list'>
                     {filteredItems.map((item, index) => {
                         return (
-                            <Reveal>
-                                <CourseItem key={index} id={item._id} name={item.name} description={item.description} price={item.price} image={item.image} />
-                            </Reveal>
+
+                            <CourseItem key={index} id={item._id} name={item.name} description={item.description} price={item.price} image={item.image} onClickMore={(id) => navigate(`/course/${id}`)} />
+
                         )
                     })}
                 </div>
             </div>
+            <Footer />
         </div>
     )
 }

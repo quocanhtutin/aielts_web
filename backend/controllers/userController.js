@@ -1,6 +1,8 @@
 import userModel from "../models/userModel.js";
 import userOwnedCoursesModel from "../models/userOwnedCoursesModel.js";
 import courseModel from "../models/courseModel.js";
+import exerciseModel from "../models/exerciseModel.js";
+import LessonResult from "../models/lessonResultModel.js";
 import jwt from "jsonwebtoken"
 import validator from "validator"
 import bcrypt from "bcrypt"
@@ -89,7 +91,6 @@ const createAdmin = async (req, res) => {
     }
 }
 
-//login user
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -275,4 +276,159 @@ const addUserCourse = async (req, res) => {
     }
 }
 
-export { registerUser, createAdmin, loginUser, listUser, deactivateUser, activateUser, getUserDetail, updateUser, removeUserCourse, addUserCourse }
+const getUserCourses = async (req, res) => {
+    try {
+        const userId = req.user.id
+        const userCourses = await userOwnedCoursesModel.findOne({ userId })
+        res.json({ success: true, data: userCourses })
+    } catch (err) {
+        console.error("getUserCourses error:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+const getOwnedCourseDetail = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const courseId = req.params.courseId;
+
+        const ownedDoc = await userOwnedCoursesModel.findOne({ userId }).lean();
+        const ownedCourse = (ownedDoc?.ownedCourses || []).find(oc => String(oc.courseId) === String(courseId));
+
+        const course = await courseModel.findById(courseId).lean();
+
+        const lessons = await Promise.all((course.lessons || []).map(async (lesson) => {
+            const exercise = await exerciseModel.findOne({ lessonId: lesson._id }).lean();
+            const lessonResult = await LessonResult.findOne({ userId, lessonId: lesson._id }).lean();
+            return {
+                ...lesson,
+                exercise: exercise ? {
+                    exercisePdf: exercise.exercisePdf || "",
+                    linkAudio: exercise.linkAudio || "",
+                    answerList: exercise.answerList || []
+                } : { exercisePdf: "", linkAudio: "", answerList: [] },
+                userResult: lessonResult || null
+            };
+        }));
+
+        const lessonProgress = ownedCourse.lessonProgress || []; // [{lessonNumber, completed}]
+        const completedCount = lessonProgress.filter(l => l.completed).length;
+        const totalLessons = lessons.length;
+        const percent = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+
+        res.json({
+            success: true,
+            data: {
+                course: {
+                    _id: course._id,
+                    name: course.name,
+                    description: course.description,
+                    category: course.category,
+                    image: course.image,
+                    price: course.price,
+                    createdAt: course.createdAt,
+                },
+                lessons,
+                ownedInfo: {
+                    purchaseDate: ownedCourse.purchaseDate,
+                    expireDate: ownedCourse.expireDate,
+                    lessonProgress
+                },
+                progress: {
+                    totalLessons,
+                    completedCount,
+                    percent
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error("getOwnedCourseDetail error:", err);
+        res.json({ success: false, message: "Server error" });
+    }
+};
+
+const submitLessonAnswers = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // expect body: lessonId, courseId, answers: [{order, userAnswer}], completed(bool)
+        const { lessonId, courseId } = req.body;
+        let answers = [];
+        try {
+            answers = JSON.parse(req.body.answers)
+        } catch (e) {
+            console.warn("Invalid questions JSON, skipped parsing.");
+        }
+
+        const exercise = await exerciseModel.findOne({ lessonId }).lean();
+        const actualList = (exercise?.answerList || []).reduce((acc, it) => {
+            acc[it.order] = String(it.answer).trim();
+            return acc;
+        }, {});
+
+        // compare and prepare stored answers
+        const storedAnswers = answers.map(a => {
+            const order = Number(a.order);
+            const userAnswer = String(a.userAnswer || a.answer || "").trim();
+            const actualAnswer = actualList[order] || "";
+            const correct = actualAnswer ? (userAnswer.toLowerCase() === actualAnswer.toLowerCase()) : false;
+            return { order, userAnswer, actualAnswer, correct };
+        });
+
+        // score
+        const total = storedAnswers.length;
+        const correctCount = storedAnswers.filter(a => a.correct).length;
+        const score = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+
+        // upsert LessonResult
+        const result = await LessonResult.findOneAndUpdate(
+            { userId, lessonId },
+            { userId, courseId, lessonId, answers: storedAnswers, score, completed: !!req.body.completed, submittedAt: new Date() },
+            { upsert: true, new: true }
+        );
+
+        // Simpler: fetch doc, modify in JS, save
+        const course = await courseModel.findOne({ "lessons._id": lessonId })
+        const lessonNumber = course.lessons.find(l => String(l._id) === String(lessonId)).number
+        const doc = await userOwnedCoursesModel.findOne({ userId });
+        if (doc) {
+            const oc = doc.ownedCourses.find(o => String(o.courseId) === String(courseId));
+            if (oc) {
+                const lp = oc.lessonProgress || [];
+
+                const existing = lp.find(x => x.lessonNumber === lessonNumber);
+                if (existing) {
+                    existing.completed = true;
+                }
+                else {
+                    lp.push({ lessonNumber: Number(req.body.lessonNumber), completed: true });
+                }
+                oc.lessonProgress = lp;
+                await doc.save();
+            }
+        }
+
+
+        res.json({ success: true, data: result, score });
+
+    } catch (err) {
+        console.error("submitLessonAnswers error:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const getLessonResult = async (req, res) => {
+    try {
+        const userId = getUserIdFromReq(req);
+        const lessonId = req.params.lessonId;
+
+        const result = await LessonResult.findOne({ userId, lessonId }).lean();
+        res.json({ success: true, data: result });
+    } catch (err) {
+        console.error("getLessonResult error:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+export { registerUser, createAdmin, loginUser, listUser, deactivateUser, activateUser, getUserDetail, updateUser, removeUserCourse, addUserCourse, getUserCourses, getOwnedCourseDetail, submitLessonAnswers, getLessonResult }

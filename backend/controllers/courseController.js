@@ -4,8 +4,6 @@ import streamifier from "streamifier";
 import cloudinary from "../config/cloudinary.js";
 import mongoose from "mongoose";
 
-// hàm upload buffer lên cloudinary (cho video hoặc pdf)
-// backend: cloudinary upload helper
 const uploadToCloudinary = (buffer, folder, originalName) => {
     return new Promise((resolve, reject) => {
         const options = {
@@ -78,6 +76,7 @@ const addLesson = async (req, res) => {
         let videoUrl = "";
         let pdfUrl = "";
         let exercisePdfUrl = "";
+        let audioUrl = "";
 
         if (req.files?.video) {
             const original = req.files.video[0].originalname;
@@ -99,6 +98,16 @@ const addLesson = async (req, res) => {
             pdfUrl = pdfResult.secure_url;
         }
 
+        if (req.files?.audio) {
+            const original = req.files.audio[0].originalname;
+            const audioResult = await uploadToCloudinary(
+                req.files.audio[0].buffer,
+                "courses/audios",
+                original
+            );
+            audioUrl = audioResult.secure_url;
+        }
+
         const lessonId = new mongoose.Types.ObjectId();
 
         const newLesson = {
@@ -106,7 +115,7 @@ const addLesson = async (req, res) => {
             number: number,
             title: title,
             linkVideo: videoUrl,
-            linkPDF: pdfUrl
+            linkPDF: pdfUrl,
         }
 
         const updatedCourse = await courseModel.findByIdAndUpdate(
@@ -143,6 +152,7 @@ const addLesson = async (req, res) => {
         const newExercise = new exerciseModel({
             lessonId,
             exercisePdf: exercisePdfUrl,
+            linkAudio: audioUrl,
             answerList
         })
 
@@ -229,6 +239,7 @@ const lessonUpdate = async (req, res) => {
         let videoUrlUpdate = "";
         let pdfUrlUpdate = "";
         let exercisePdfUrlUpdate = "";
+        let audioUrl = "";
 
         // Upload video nếu có
         if (req.files?.video) {
@@ -284,6 +295,18 @@ const lessonUpdate = async (req, res) => {
             exercisePdfUrlUpdate = exercisePdfResult.secure_url;
             await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
                 exercisePdf: exercisePdfUrlUpdate
+            })
+        }
+        if (req.files?.audio) {
+            const original = req.files.audio[0].originalname;
+            const audioResult = await uploadToCloudinary(
+                req.files.audio[0].buffer,
+                "courses/audios",
+                original
+            );
+            audioUrl = audioResult.secure_url;
+            await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
+                linkAudio: audioUrl
             })
         }
         let answerList = []

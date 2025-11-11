@@ -3,13 +3,10 @@ import './CourseItem.css'
 import { useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../context/StoreContext'
 
-const CourseItem = ({ id, name, price, description, image }) => {
+const CourseItem = ({ id, name, price, description, image, onClickMore }) => {
 
     const navigate = useNavigate()
     const { userRole } = useContext(StoreContext)
-    const handleClick = () => {
-        userRole !== "admin" ? navigate(`/course/${id}`) : navigate(`/admin/coursedetail/${id}`)
-    }
 
     return (
         <div className='course-item'>
@@ -21,7 +18,7 @@ const CourseItem = ({ id, name, price, description, image }) => {
                     <p>{name}</p>
                 </div>
                 <p className='course-item-price'>{price}</p>
-                <button className='course-item-button' onClick={handleClick}>Xem thêm</button>
+                <button className='course-item-button' onClick={() => onClickMore(id)}>Xem thêm</button>
             </div>
         </div>
     )

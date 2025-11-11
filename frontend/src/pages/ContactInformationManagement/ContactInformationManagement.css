@@ -1,0 +1,110 @@
+.contact-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1300px;
+    margin: 30px auto;
+    gap: 40px;
+    background-color: white;
+    padding-top:80px;
+    padding-left: 100px;
+    padding-right: 100px;
+    padding-bottom: 80px;
+}
+
+.contact-container h2 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 26px;
+}
+
+.contact-left, .contact-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.contact-left p, .contact-right p {
+    margin: 5px 0;
+    font-weight: 500;
+    color: #333;
+}
+
+.contact-container input, .contact-container textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 15px;
+    transition: border-color 0.2s ease;
+}
+
+.contact-container textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.add-branch, .add-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.add-branch input, .add-link input {
+    flex: 1;
+}
+
+.add-branch-btn, .add-link-btn, .save-contact {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.add-branch-btn:hover, .add-link-btn:hover, .save-contact:hover {
+    background-color: #0056b3;
+}
+
+.branch-item, .link-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #eef2f6;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+.delete-branch, .delete-link {
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.save-contact {
+    margin-top: 20px;
+    align-self: flex-end;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .contact-container {
+        flex-direction: column;
+    }
+}

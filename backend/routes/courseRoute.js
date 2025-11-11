@@ -17,7 +17,8 @@ courseRouter.post(
     upload.fields([
         { name: "video", maxCount: 1 },
         { name: "pdf", maxCount: 1 },
-        { name: "exercisePdf", maxCount: 1 }
+        { name: "exercisePdf", maxCount: 1 },
+        { name: "audio", maxCount: 1 }
     ]),
     addLesson
 );
@@ -27,7 +28,8 @@ courseRouter.post(
     upload.fields([
         { name: "video", maxCount: 1 },
         { name: "pdf", maxCount: 1 },
-        { name: "exercisePdf", maxCount: 1 }
+        { name: "exercisePdf", maxCount: 1 },
+        { name: "audio", maxCount: 1 }
     ]),
     lessonUpdate
 );

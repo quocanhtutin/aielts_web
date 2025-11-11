@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const exerciseSchema = new mongoose.Schema({
     lessonId: { type: mongoose.Schema.Types.ObjectId, required: true },
     exercisePdf: { type: String, required: true, default: "" },
+    linkAudio: { type: String, default: "" },
     answerList: [
         {
             order: Number,

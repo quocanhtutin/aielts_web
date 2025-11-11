@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom";
 
 export const StoreContext = createContext(null)
 
@@ -13,6 +14,17 @@ const StoreContextProvider = (props) => {
     const [userPhone, setUserPhone] = useState("")
     const [userRole, setUserRole] = useState("")
     const [isLoaded, setIsLoaded] = useState(false);
+    const [contactInfor, setContactInfor] = useState({
+        name: "",
+        description: "",
+        address: "",
+        branches: [],
+        phoneContact: "",
+        emailContact: "",
+        links: []
+    })
+
+    const navigate = useNavigate()
 
     const url = "http://localhost:5000"
 
@@ -23,9 +35,27 @@ const StoreContextProvider = (props) => {
         console.log(response.data.data)
     }
 
+    const fetchContactInfor = async () => {
+        const response = await axios.get(url + "/api/contactInfor/getContactInfor")
+        if (response.data && response.data.success && response.data.data) {
+            setContactInfor(response.data.data)
+        } else {
+            setContactInfor({
+                name: "",
+                description: "",
+                address: "",
+                branches: [],
+                phoneContact: "",
+                emailContact: "",
+                links: []
+            })
+        }
+    }
+
     useEffect(() => {
         async function loadData() {
             await fetchCourseList()
+            await fetchContactInfor()
             const savedToken = localStorage.getItem("token");
             if (savedToken) {
                 setToken(savedToken);
@@ -57,24 +87,8 @@ const StoreContextProvider = (props) => {
         setUserPhone("");
         setUserRole("");
         localStorage.clear();
+        navigate('/')
     };
-
-    // useEffect(() => {
-    //     if (token) {
-    //         localStorage.setItem("token", token);
-    //         localStorage.setItem("userName", userName);
-    //         localStorage.setItem("userEmail", userEmail);
-    //         localStorage.setItem("userPhone", userPhone);
-    //         localStorage.setItem("userRole", userRole);
-    //     } else {
-    //         // Khi logout => clear storage
-    //         localStorage.removeItem("token");
-    //         localStorage.removeItem("userName");
-    //         localStorage.removeItem("userEmail");
-    //         localStorage.removeItem("userPhone");
-    //         localStorage.removeItem("userRole");
-    //     }
-    // }, [token, userName, userEmail, userPhone, userRole]);
 
     const contextValue = {
         courses,
@@ -92,7 +106,9 @@ const StoreContextProvider = (props) => {
         userRole,
         setUserRole,
         fetchCourseList,
-        logout
+        logout,
+        contactInfor,
+        setContactInfor
     }
 
     if (!isLoaded) {

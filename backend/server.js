@@ -7,6 +7,7 @@ import adminRouter from "./routes/adminRoute.js";
 import cloudinary from "./config/cloudinary.js";
 import courseRouter from "./routes/courseRoute.js";
 import exerciseRouter from "./routes/exerciseRoute.js";
+import contactRouter from "./routes/contactRoute.js";
 
 (async () => {
     const result = await cloudinary.api.ping();
@@ -32,6 +33,7 @@ app.use("/api/user", userRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/course", courseRouter)
 app.use("/api/exercise", exerciseRouter)
+app.use("/api/contactInfor", contactRouter)
 
 app.get("/", (req, res) => {
     res.send("API Working")

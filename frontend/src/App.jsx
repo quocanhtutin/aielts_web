@@ -12,11 +12,13 @@ import LoginPopup from './components/LoginPopup/LoginPopup'
 import { StoreContext } from './context/StoreContext'
 import CourseDetail from './pages/CourseDetail/CourseDetail'
 import CourseDetailManagement from './pages/CourseDetailManagement/CourseDetailManagement'
+import OwnedCourses from './pages/OwnedCourses/OwnedCourses'
+import OwnedCourse from './pages/OwnedCourse/OwnedCourse'
+import ContactInformationManagement from './pages/ContactInformationManagement/ContactInformationManagement'
 
 const App = () => {
 
-  const { userRole } = useContext(StoreContext)
-
+  const { userRole, courses } = useContext(StoreContext)
   const [showLogin, setShowLogin] = useState(false)
 
   return (
@@ -27,18 +29,24 @@ const App = () => {
         <Navbar setShowLogin={setShowLogin} />
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/courses' element={<Course />} />
+          <Route path='/courses' element={<Course courses={courses} />} />
           <Route path='/course/:id' element={<CourseDetail />} />
           {userRole === "admin" && (
             <>
               <Route path='/admin/accountmanagement' element={<AccountManagement />} />
               <Route path='/admin/coursemanagement' element={<CourseManagement />} />
               <Route path='/admin/coursedetail/:id' element={<CourseDetailManagement />} />
+              <Route path='/admin/contactInformation' element={<ContactInformationManagement />} />
+            </>
+          )}
+          {userRole === "user" && (
+            <>
+              <Route path='/user/ownedCourses' element={<OwnedCourses />} />
+              <Route path='/user/ownedCourse/:id' element={<OwnedCourse />} />
             </>
           )}
         </Routes>
       </div>
-      <Footer />
     </>
   )
 }

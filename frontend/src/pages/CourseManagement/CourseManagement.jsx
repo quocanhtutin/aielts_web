@@ -6,10 +6,12 @@ import { course_list } from '../../assets/assets';
 import { StoreContext } from '../../context/StoreContext.jsx';
 import { assets } from '../../assets/assets'
 import CourseDisplay from '../../components/CourseDisplay/CourseDisplay.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const CourseManagement = () => {
 
-    const { url, token, fetchCourseList } = useContext(StoreContext)
+    const { url, token, fetchCourseList, courses } = useContext(StoreContext)
+    const navigate = useNavigate()
 
     const [image, setImage] = useState(false);
     const [data, setData] = useState({
@@ -51,7 +53,7 @@ const CourseManagement = () => {
     }
 
     return (
-        <div>
+        <div className='courses-manager-container'>
             <div className='add-container'>
                 <div className='add'>
                     <form className='flex-row' onSubmit={onSubmitHandler}>
@@ -91,7 +93,7 @@ const CourseManagement = () => {
                     </form>
                 </div>
             </div>
-            <CourseDisplay />
+            <CourseDisplay courses={courses} nav={(id) => navigate(`/admin/coursedetail/${id}`)} />
         </div>
     )
 }

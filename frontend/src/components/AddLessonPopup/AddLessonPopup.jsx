@@ -13,6 +13,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
         linkVideo: null,
         linkPDF: null,
         exercisePdf: null,
+        linkAudio: null,
         questions: [],
     });
 
@@ -67,6 +68,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
         if (formData.linkVideo) data.append("video", formData.linkVideo);
         if (formData.linkPDF) data.append("pdf", formData.linkPDF);
         if (formData.exercisePdf) data.append("exercisePdf", formData.exercisePdf);
+        if (formData.linkAudio) data.append("audio", formData.linkAudio);
         data.append("questions", JSON.stringify(formData.questions));
 
         try {
@@ -84,6 +86,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                     linkVideo: null,
                     linkPDF: null,
                     exercisePdf: null,
+                    linkAudio: null,
                     questions: [],
                 });
                 onLessonAdded?.();
@@ -107,6 +110,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
         if (formData.linkVideo && typeof formData.linkVideo !== "string") data.append("video", formData.linkVideo);
         if (formData.linkPDF && typeof formData.linkPDF !== "string") data.append("pdf", formData.linkPDF);
         if (formData.exercisePdf && typeof formData.exercisePdf !== "string") data.append("exercisePdf", formData.exercisePdf);
+        if (formData.linkAudio && typeof formData.linkAudio !== "string") data.append("audio", formData.linkAudio);
         data.append("questions", JSON.stringify(formData.questions));
 
         try {
@@ -124,6 +128,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                     linkVideo: null,
                     linkPDF: null,
                     exercisePdf: null,
+                    linkAudio: null,
                     questions: [],
                 });
                 onLessonAdded?.();
@@ -143,6 +148,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
         const fetchLessonDetail = async () => {
             try {
                 let exerciseUrl = "";
+                let linkAudio = "";
                 let questionList = [];
 
                 const response = await axios.post(
@@ -157,12 +163,14 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
 
                 if (response.data.success) {
                     exerciseUrl = response.data.data.exercisePdf || "";
+                    linkAudio = response.data.data.linkAudio || "";
                     questionList = response.data.data.answerList || [];
                 }
 
                 const lessonDetail = {
                     ...editLesson,
                     exercisePdf: exerciseUrl,
+                    linkAudio: linkAudio,
                     questions: questionList,
                 };
                 console.log(lessonDetail)
@@ -173,6 +181,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                 setFormData({
                     ...editLesson,
                     exercisePdf: "",
+                    linkAudio: "",
                     questions: [],
                 });
             } finally {
@@ -265,7 +274,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                         ) : (
                             <input
                                 type="file"
-                                name="video"
+                                name="linkVideo"
                                 accept="video/*"
                                 onChange={handleFileChange}
                             />
@@ -282,7 +291,7 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                         ) : (
                             <input
                                 type="file"
-                                name="pdf"
+                                name="linkPDF"
                                 accept="application/pdf"
                                 onChange={handleFileChange}
                             />
@@ -301,6 +310,23 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                                 type="file"
                                 name="exercisePdf"
                                 accept="application/pdf"
+                                onChange={handleFileChange}
+                            />
+                        )}
+                    </div>
+
+                    <div className="form-group">
+                        <label>File audio</label>
+                        {formData.linkAudio && typeof formData.linkAudio === "string" ? (
+                            <div className="file-preview">
+                                <a href={formData.linkAudio} target="_blank" rel="noopener noreferrer">Xem audio</a>
+                                <button type="button" className="delete-btn" onClick={() => handleRemoveFile("linkAudio")}>×</button>
+                            </div>
+                        ) : (
+                            <input
+                                type="file"
+                                name="linkAudio"
+                                accept="audio/*"
                                 onChange={handleFileChange}
                             />
                         )}
