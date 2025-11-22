@@ -1,0 +1,93 @@
+.qr-popup-overlay {
+  position: fixed;
+  top:0; 
+  left:0; 
+  right:0; 
+  bottom:0;
+  background: rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.qr-popup-container {
+  background:#fff;
+  padding:30px;
+  border-radius:10px;
+  max-width:400px;
+  width:90%;
+  text-align:center;
+  position: relative;
+}
+.qr-popup-close {
+  position:absolute;
+  top:10px; 
+  right:15px;
+  background:none;
+  border:none;
+  font-size:20px;
+  cursor:pointer;
+}
+.qr-popup-image {
+  width:100%;
+  max-width:300px;
+  margin:20px 0;
+}
+.qr-popup-overlay button {
+    width: 100%;
+    padding: 12px;
+    font-size: 17px;
+    background-color: #2b7bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-weight: 500;
+}
+
+.qr-popup-overlay button:hover {
+    background: #1a63dd;
+}
+
+.btn-disabled {
+    background: #c5c5c5 !important;
+    cursor: not-allowed !important;
+}
+
+.loader {
+    margin: 30px auto;
+    border: 6px solid #eee;
+    border-top: 6px solid #2b7bff;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.success-check {
+    font-size: 70px;
+    color: #28a745;
+    font-weight: bold;
+    margin-top: 25px;
+}
+
+.checking-text {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 15px;
+}
+
+.success-text {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #28a745;
+    font-size: 16px;
+    font-weight: 600;
+}
+

@@ -15,6 +15,7 @@ import CourseDetailManagement from './pages/CourseDetailManagement/CourseDetailM
 import OwnedCourses from './pages/OwnedCourses/OwnedCourses'
 import OwnedCourse from './pages/OwnedCourse/OwnedCourse'
 import ContactInformationManagement from './pages/ContactInformationManagement/ContactInformationManagement'
+import Payment from './pages/Payment/Payment'
 
 const App = () => {
 
@@ -30,7 +31,7 @@ const App = () => {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/courses' element={<Course courses={courses} />} />
-          <Route path='/course/:id' element={<CourseDetail />} />
+          <Route path='/course/:id' element={<CourseDetail setShowLogin={setShowLogin} />} />
           {userRole === "admin" && (
             <>
               <Route path='/admin/accountmanagement' element={<AccountManagement />} />
@@ -43,6 +44,7 @@ const App = () => {
             <>
               <Route path='/user/ownedCourses' element={<OwnedCourses />} />
               <Route path='/user/ownedCourse/:id' element={<OwnedCourse />} />
+              <Route path='/user/register/:id' element={<Payment />} />
             </>
           )}
         </Routes>

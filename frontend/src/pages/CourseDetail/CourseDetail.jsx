@@ -1,17 +1,21 @@
 import React, { useContext } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../context/StoreContext'
 import './CourseDetail.css'
 import Reveal from '../../components/Reveal/Reveal.jsx'
 import Footer from '../../components/Footer/Footer.jsx'
 
-const CourseDetail = () => {
+const CourseDetail = ({ setShowLogin }) => {
     const { id } = useParams()
-    const { courses } = useContext(StoreContext)
+    const { courses, token, userRole } = useContext(StoreContext)
     const course = courses.find(c => c._id === id)
-
-    if (!course) {
-        return <p className="course-loading">Đang tải dữ liệu...</p>
+    const navigate = useNavigate()
+    const handleRegister = () => {
+        if (token && userRole == "user") {
+            navigate(`/user/register/${id}`)
+        } else {
+            setShowLogin(true)
+        }
     }
 
     return (
@@ -22,7 +26,7 @@ const CourseDetail = () => {
                     <h2>{course.name}</h2>
                     <p><strong>Danh mục:</strong> {course.category}</p>
                     <p><strong>Giá:</strong> {course.price} đ</p>
-                    <button className='register-button'>Đăng ký</button>
+                    <button className='register-button' onClick={handleRegister}>Đăng ký</button>
                 </div>
                 <div className='course-detail-des'>
                     <h2>Mô tả</h2>

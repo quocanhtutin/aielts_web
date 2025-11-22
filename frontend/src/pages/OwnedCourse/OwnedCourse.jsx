@@ -21,6 +21,11 @@ const OwnedCourse = () => {
     const [checkedFlags, setCheckedFlags] = useState({}); // index => {correct:true,...}
     const [saving, setSaving] = useState(false);
 
+
+    const [chatInput, setChatInput] = useState("");
+    const [chatMessages, setChatMessages] = useState([]);
+    const chatBoxRef = useRef(null);
+
     // fetch course detail for this user
     const fetchDetail = async () => {
         try {
@@ -62,7 +67,6 @@ const OwnedCourse = () => {
         const answerList = (l.exercise?.answerList || []);
         const userResult = l.userResult || null;
 
-        // build answersState: ensure order ascending
         const base = answerList.map((a) => ({
             order: a.order,
             userAnswer: userResult?.answers?.find(x => x.order === a.order)?.userAnswer || "",
@@ -71,13 +75,18 @@ const OwnedCourse = () => {
         }));
 
         setAnswersState(base);
-        // set checked flags from userResult
         const flags = {};
         if (userResult?.answers) {
             userResult.answers.forEach(ans => { flags[ans.order] = !!ans.correct; });
         }
         setCheckedFlags(flags);
     }, [activeLessonIndex, lessons]);
+
+    useEffect(() => {
+        if (chatBoxRef.current) {
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }
+    }, [chatMessages]);
 
     if (loading) return <div>Đang tải...</div>;
     if (!courseInfo) return <div>Khóa học không tồn tại hoặc bạn chưa mua.</div>;
@@ -136,6 +145,37 @@ const OwnedCourse = () => {
         const entry = lp.find(e => Number(e.lessonNumber) === Number(lesson.number));
         return !!entry?.completed;
     };
+
+    const sendChat = async () => {
+        if (!chatInput.trim()) return;
+
+        const userMessage = { role: "user", content: chatInput };
+        setChatMessages(prev => [...prev, userMessage]);
+        const sending = chatInput;
+        setChatInput("");
+
+        try {
+            const res = await axios.post(
+                `${url}/api/model/chatAI`,
+                { message: sending },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Ollama trả về dạng { message: "...", ... }
+            const aiContent = res.data?.message.content || res?.data?.response || JSON.stringify(res.data);
+
+            const aiMessage = { role: "assistant", content: aiContent };
+            setChatMessages(prev => [...prev, aiMessage]);
+
+        } catch (err) {
+            console.error(err);
+            setChatMessages(prev => [
+                ...prev,
+                { role: "assistant", content: "Lỗi khi gọi AI." }
+            ]);
+        }
+    };
+
 
     return (
         <div className="owned-course-page">
@@ -216,10 +256,31 @@ const OwnedCourse = () => {
                     </div>
                 </div>
 
-                <div className="card chat-placeholder">
-                    <h4>Chat (sẽ tích hợp OpenAI)</h4>
-                    <p>Chatbot hỗ trợ học tập — sẽ kết nối OpenAI sau.</p>
+
+                <div className="card chat-box">
+                    <h4>Chat với AI</h4>
+
+                    <div className="chat-messages" ref={chatBoxRef}>
+                        {chatMessages.map((msg, idx) => (
+                            <div key={idx} className={`chat-msg ${msg.role}`}>
+                                <div className="bubble">{msg.content}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="chat-input">
+                        <input
+                            type="text"
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder="Nhập tin nhắn..."
+                            onKeyDown={(e) => e.key === "Enter" && sendChat()}
+                        />
+                        <button onClick={sendChat}>Gửi</button>
+                    </div>
                 </div>
+
+
             </aside>
         </div>
     );

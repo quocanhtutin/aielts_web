@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import "./AddLessonPopup.css";
 import * as XLSX from "xlsx";
 
-const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesson, deleteLesson }) => {
+const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, editLesson, newLesson, deleteLesson }) => {
     const { url, token } = useContext(StoreContext);
     const [formData, setFormData] = useState({
         number: newLesson,
@@ -314,98 +314,98 @@ const AddLessonPopup = ({ courseId, onClose, onLessonAdded, editLesson, newLesso
                             />
                         )}
                     </div>
-
-                    <div className="form-group">
-                        <label>File audio</label>
-                        {formData.linkAudio && typeof formData.linkAudio === "string" ? (
-                            <div className="file-preview">
-                                <a href={formData.linkAudio} target="_blank" rel="noopener noreferrer">Xem audio</a>
-                                <button type="button" className="delete-btn" onClick={() => handleRemoveFile("linkAudio")}>×</button>
-                            </div>
-                        ) : (
-                            <input
-                                type="file"
-                                name="linkAudio"
-                                accept="audio/*"
-                                onChange={handleFileChange}
-                            />
-                        )}
-                    </div>
-
-                    <div className="form-group question-section">
-                        <label>Đáp án</label>
+                    {courseCategory === "Listening" &&
                         <div className="form-group">
-                            <label>Nhập danh sách đáp án từ Excel</label>
-                            <input
-                                type="file"
-                                accept=".xlsx, .xls"
-                                onChange={handleExcelUpload}
-                            />
-                        </div>
-
-                        {showQuestionForm ? (
-                            <div className="question-form">
+                            <label>File audio</label>
+                            {formData.linkAudio && typeof formData.linkAudio === "string" ? (
+                                <div className="file-preview">
+                                    <a href={formData.linkAudio} target="_blank" rel="noopener noreferrer">Xem audio</a>
+                                    <button type="button" className="delete-btn" onClick={() => handleRemoveFile("linkAudio")}>×</button>
+                                </div>
+                            ) : (
                                 <input
-                                    type="number"
-                                    min="1"
-                                    placeholder="Số thứ tự"
-                                    value={questionInput.order}
-                                    onChange={(e) =>
-                                        setQuestionInput({
-                                            ...questionInput,
-                                            order: e.target.value,
-                                        })
-                                    }
+                                    type="file"
+                                    name="linkAudio"
+                                    accept="audio/*"
+                                    onChange={handleFileChange}
                                 />
-
+                            )}
+                        </div>}
+                    {courseCategory === "Reading" || courseCategory === "Listening" &&
+                        <div className="form-group question-section">
+                            <label>Đáp án</label>
+                            <div className="form-group">
+                                <label>Nhập danh sách đáp án từ Excel</label>
                                 <input
-                                    type="text"
-                                    placeholder="Đáp án"
-                                    value={questionInput.answer}
-                                    onChange={(e) =>
-                                        setQuestionInput({
-                                            ...questionInput,
-                                            answer: e.target.value,
-                                        })
-                                    }
+                                    type="file"
+                                    accept=".xlsx, .xls"
+                                    onChange={handleExcelUpload}
                                 />
-
-                                <button type="button" className="add-question-btn" onClick={handleAddQuestion}>
-                                    Thêm
-                                </button>
-                                <button type="button" className="close-question-btn" onClick={() => setShowQuestionForm(false)}>
-                                    Đóng
-                                </button>
                             </div>
 
-                        ) :
-                            <button
-                                type="button"
-                                className="add-question-btn"
-                                onClick={() => { setQuestionInput({ order: formData.questions.length + 1, answer: "" }); setShowQuestionForm(true) }}
-                            >
-                                + Thêm câu hỏi
-                            </button>}
+                            {showQuestionForm ? (
+                                <div className="question-form">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        placeholder="Số thứ tự"
+                                        value={questionInput.order}
+                                        onChange={(e) =>
+                                            setQuestionInput({
+                                                ...questionInput,
+                                                order: e.target.value,
+                                            })
+                                        }
+                                    />
 
-                        {formData.questions.length > 0 && (
-                            <ul className="question-list">
-                                {formData.questions.map((q, index) => (
-                                    <li key={index} className="question-item">
-                                        <span>
-                                            <b>{q.order}.</b> {q.answer}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            className="delete-btn"
-                                            onClick={() => handleDeleteQuestion(index)}
-                                        >
-                                            ×
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Đáp án"
+                                        value={questionInput.answer}
+                                        onChange={(e) =>
+                                            setQuestionInput({
+                                                ...questionInput,
+                                                answer: e.target.value,
+                                            })
+                                        }
+                                    />
+
+                                    <button type="button" className="add-question-btn" onClick={handleAddQuestion}>
+                                        Thêm
+                                    </button>
+                                    <button type="button" className="close-question-btn" onClick={() => setShowQuestionForm(false)}>
+                                        Đóng
+                                    </button>
+                                </div>
+
+                            ) :
+                                <button
+                                    type="button"
+                                    className="add-question-btn"
+                                    onClick={() => { setQuestionInput({ order: formData.questions.length + 1, answer: "" }); setShowQuestionForm(true) }}
+                                >
+                                    + Thêm câu hỏi
+                                </button>}
+
+                            {formData.questions.length > 0 && (
+                                <ul className="question-list">
+                                    {formData.questions.map((q, index) => (
+                                        <li key={index} className="question-item">
+                                            <span>
+                                                <b>{q.order}.</b> {q.answer}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className="delete-btn"
+                                                onClick={() => handleDeleteQuestion(index)}
+                                            >
+                                                ×
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>}
 
                     <div className="popup-actions">
                         {editLesson ? (

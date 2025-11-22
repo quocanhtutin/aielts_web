@@ -237,6 +237,7 @@ const CourseDetailManagement = () => {
             {showPopup && (
                 <AddLessonPopup
                     courseId={id}
+                    courseCategory={course.category}
                     onClose={() => setShowPopup(false)}
                     onLessonAdded={handleLessonUpdated}
                     editLesson={editLesson}
