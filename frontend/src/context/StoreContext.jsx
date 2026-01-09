@@ -14,6 +14,8 @@ const StoreContextProvider = (props) => {
     const [userPhone, setUserPhone] = useState("")
     const [userRole, setUserRole] = useState("")
     const [isLoaded, setIsLoaded] = useState(false);
+    const [activeCourses, setActiveCourses] = useState([])
+    const [inactiveCourses, setInactiveCourses] = useState([])
     const [contactInfor, setContactInfor] = useState({
         name: "",
         description: "",
@@ -32,7 +34,8 @@ const StoreContextProvider = (props) => {
     const fetchCourseList = async () => {
         const response = await axios.get(url + "/api/course/listCourse");
         setCourses(response.data.data)
-        console.log(response.data.data)
+        setActiveCourses(response.data.data.filter(c => c.isActive))
+        setInactiveCourses(response.data.data.filter(c => !c.isActive))
     }
 
     const fetchContactInfor = async () => {
@@ -51,6 +54,20 @@ const StoreContextProvider = (props) => {
             })
         }
     }
+
+    const fetchUserCourses = async () => {
+        try {
+            const response = await axios.get(`${url}/api/user/ownedCourses`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.data.success && response.data.data) {
+                setOwnedCourses(response.data.data.ownedCourses || []);
+            }
+        } catch (err) {
+            console.error("Fetch owned courses error:", err);
+        }
+    };
 
     useEffect(() => {
         async function loadData() {
@@ -78,6 +95,10 @@ const StoreContextProvider = (props) => {
             localStorage.setItem("userPhone", userPhone);
             localStorage.setItem("userRole", userRole);
         }
+
+        if (token && userRole === "user") {
+            fetchUserCourses();
+        }
     }, [token, userName, userEmail, userPhone, userRole]);
 
     const logout = () => {
@@ -86,6 +107,7 @@ const StoreContextProvider = (props) => {
         setUserEmail("");
         setUserPhone("");
         setUserRole("");
+        setOwnedCourses([])
         localStorage.clear();
         navigate('/')
     };
@@ -108,7 +130,10 @@ const StoreContextProvider = (props) => {
         fetchCourseList,
         logout,
         contactInfor,
-        setContactInfor
+        setContactInfor,
+        activeCourses,
+        inactiveCourses,
+        fetchUserCourses
     }
 
     if (!isLoaded) {

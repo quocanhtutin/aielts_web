@@ -67,7 +67,7 @@ const Navbar = ({ setShowLogin }) => {
                                 <Link to="/admin/coursemanagement">Khóa học</Link>
                             </div>
                         </div>
-                        <Link to="/admin/contactInformation">Liên hệ</Link>
+                        <Link className={isActive("/admin/contactInformation") ? "active" : ""} to="/admin/contactInformation">Liên hệ</Link>
                     </>
                 )
                     :

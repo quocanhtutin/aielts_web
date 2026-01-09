@@ -7,19 +7,22 @@ import { StoreContext } from '../../context/StoreContext.jsx';
 import { assets } from '../../assets/assets'
 import CourseDisplay from '../../components/CourseDisplay/CourseDisplay.jsx';
 import { useNavigate } from 'react-router-dom';
+import { ImageUp, ArrowDown, ArrowUp } from 'lucide-react'
 
 const CourseManagement = () => {
 
-    const { url, token, fetchCourseList, courses } = useContext(StoreContext)
+    const { url, token, fetchCourseList, courses, activeCourses, inactiveCourses } = useContext(StoreContext)
     const navigate = useNavigate()
 
     const [image, setImage] = useState(false);
+    const [adding, setAdding] = useState(false)
     const [data, setData] = useState({
         name: "",
         description: "",
         price: "",
         category: "Speaking"
     })
+    const [showInactive, setShowInactive] = useState(false)
 
     const onChangeHandler = (event) => {
         const name = event.target.name;
@@ -29,6 +32,7 @@ const CourseManagement = () => {
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+        setAdding(true)
         const formData = new FormData();
         formData.append("name", data.name)
         formData.append("description", data.description)
@@ -45,22 +49,61 @@ const CourseManagement = () => {
             })
             setImage(false)
             toast.success(`Thêm khóa học thành công`)
-            await fetchCourseList
+            fetchCourseList()
+            setAdding(false)
         }
         else {
             toast.error(`Lỗi`)
         }
     }
 
+    const deactivateCourse = async (courseId) => {
+        if (!window.confirm('Bạn có chắc muốn tắt khóa học này không?')) return;
+        try {
+            const res = await axios.post(`${url}/api/course/deactivateCourse`, { courseId }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.success) {
+                toast.success('Đã tắt khóa học');
+                fetchCourse();
+                fetchCourseList();
+            } else {
+                toast.error('Tắt thất bại');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi tắt khóa học');
+        }
+    }
+
+    const activateCourse = async (courseId) => {
+        if (!window.confirm('Bạn có chắc muốn bật khóa học này không?')) return;
+        try {
+            const res = await axios.post(`${url}/api/course/activateCourse`, { courseId }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.success) {
+                toast.success('Đã bật khóa học');
+                fetchCourse();
+                fetchCourseList();
+            } else {
+                toast.error('Bật thất bại');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi bật khóa học');
+        }
+    }
+
     return (
         <div className='courses-manager-container'>
-            <div className='add-container'>
+            <div className='add-course-container'>
                 <div className='add'>
                     <form className='flex-row' onSubmit={onSubmitHandler}>
                         <div className="add-img-upload flex-col">
-                            <p>Thêm hình ảnh</p>
+                            <p className='add-img-title'>Thêm hình ảnh </p>
                             <label htmlFor="image">
-                                <img src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
+                                {image ? <img src={URL.createObjectURL(image)} alt="" /> : <ImageUp className='add-img-btn' />}
                             </label>
                             <input onChange={(e) => setImage(e.target.files[0])} type="file" id='image' hidden required />
                         </div>
@@ -74,7 +117,7 @@ const CourseManagement = () => {
                                 <textarea onChange={onChangeHandler} value={data.description} name="description" rows="6" placeholder='Thêm mô tả' required></textarea>
                             </div>
                             <div className="add-category-price">
-                                <div className="add-category flex-col">
+                                <div className="add-category ">
                                     <p>Phân loại khóa học</p>
                                     <select onChange={onChangeHandler} name="category">
                                         <option value="Speaking">Speaking</option>
@@ -83,17 +126,31 @@ const CourseManagement = () => {
                                         <option value="Reading">Reading</option>
                                     </select>
                                 </div>
-                                <div className="add-price flex-col">
+                                <div className="add-price ">
                                     <p>Giá khóa học</p>
                                     <input onChange={onChangeHandler} value={data.price} type="Number" name='price' placeholder='vnđ' />
                                 </div>
                             </div>
-                            <button type='submit' className='add-btn'>Thêm khóa</button>
+                            <button type='submit' className='add-btn'>{adding ? "Đang xử lý" : "Thêm khóa"}</button>
                         </div>
                     </form>
                 </div>
             </div>
-            <CourseDisplay courses={courses} nav={(id) => navigate(`/admin/coursedetail/${id}`)} />
+            <CourseDisplay courses={activeCourses} nav={(id) => navigate(`/admin/coursedetail/${id}`)} />
+            {showInactive ?
+                <div className="show-inactive-courses" onClick={() => setShowInactive(false)}>
+                    <p>Ẩn khóa học đã tắt</p>
+                    <ArrowUp size={22} />
+                </div>
+                :
+                <div className="show-inactive-courses" onClick={() => setShowInactive(true)}>
+                    <p>Hiện khóa học đã tắt</p>
+                    <ArrowDown size={22} />
+                </div>
+            }
+            <div className={`inactive-container ${showInactive && "open"}`}>
+                <CourseDisplay courses={inactiveCourses} nav={(id) => navigate(`/admin/coursedetail/${id}`)} deactivateCourse={deactivateCourse} activateCourse={activateCourse} />
+            </div>
         </div>
     )
 }

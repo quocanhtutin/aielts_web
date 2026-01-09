@@ -3,9 +3,8 @@ import './CourseItem.css'
 import { useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../context/StoreContext'
 
-const CourseItem = ({ id, name, price, description, image, onClickMore }) => {
+const CourseItem = ({ id, name, price, image, onClickMore, isActive, activateCourse }) => {
 
-    const navigate = useNavigate()
     const { userRole } = useContext(StoreContext)
 
     return (
@@ -18,7 +17,10 @@ const CourseItem = ({ id, name, price, description, image, onClickMore }) => {
                     <p>{name}</p>
                 </div>
                 <p className='course-item-price'>{price}</p>
-                <button className='course-item-button' onClick={() => onClickMore(id)}>Xem thêm</button>
+                <div className='course-item-btn'>
+                    {!isActive && userRole != "user" && <button className='activate-item-btn' onClick={() => activateCourse(id)}>Bật</button>}
+                    <button className='more-item-button' onClick={() => onClickMore(id)}>Xem thêm</button>
+                </div>
             </div>
         </div>
     )

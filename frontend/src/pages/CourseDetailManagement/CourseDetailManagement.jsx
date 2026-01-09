@@ -5,10 +5,11 @@ import { StoreContext } from '../../context/StoreContext';
 import { toast } from 'react-toastify';
 import './CourseDetailManagement.css';
 import AddLessonPopup from '../../components/AddLessonPopup/AddLessonPopup';
+import { Trash, CloudOff, CloudBackup } from 'lucide-react'
 
 const CourseDetailManagement = () => {
     const { id } = useParams();
-    const { courses, url, token, fetchCourseList } = useContext(StoreContext);
+    const { url, token, fetchCourseList } = useContext(StoreContext);
     const [course, setCourse] = useState({})
     const [showPopup, setShowPopup] = useState(false);
     const [editLesson, setEditLesson] = useState(null); // lesson đang được cập nhật
@@ -20,8 +21,11 @@ const CourseDetailManagement = () => {
                 Authorization: `Bearer ${token}`
             }
         });
-        setCourse(response.data.data)
-        setLessons(response.data.data.lessons || []);
+        const sortedLessons = (response.data.data.lessons || [])
+            .sort((a, b) => a.number - b.number);
+
+        setCourse(response.data.data);
+        setLessons(sortedLessons);
     }
 
     const [formData, setFormData] = useState({
@@ -123,6 +127,44 @@ const CourseDetailManagement = () => {
         fetchCourse();
     };
 
+    const deactivateCourse = async () => {
+        if (!window.confirm('Bạn có chắc muốn tắt khóa học này không?')) return;
+        try {
+            const res = await axios.post(`${url}/api/course/deactivateCourse`, { courseId: id }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.success) {
+                toast.success('Đã tắt khóa học');
+                fetchCourse();
+                fetchCourseList();
+            } else {
+                toast.error('Tắt thất bại');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi tắt khóa học');
+        }
+    }
+
+    const activateCourse = async () => {
+        if (!window.confirm('Bạn có chắc muốn bật khóa học này không?')) return;
+        try {
+            const res = await axios.post(`${url}/api/course/activateCourse`, { courseId: id }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.success) {
+                toast.success('Đã bật khóa học');
+                fetchCourse();
+                fetchCourseList();
+            } else {
+                toast.error('Bật thất bại');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi bật khóa học');
+        }
+    }
+
     return (
         <div className="course-detail">
             <form className="course-detail-form" onSubmit={handleUpdate}>
@@ -183,7 +225,20 @@ const CourseDetailManagement = () => {
                 </div>
 
                 <div className="course-detail-des">
-                    <label>Mô tả khóa học</label>
+                    <div className='course-detail-des-header' >
+                        <h3>Mô tả khóa học </h3>
+                        {course.isActive ?
+                            <div className="course-off-btn" onClick={deactivateCourse}>
+                                <p>Tắt khóa học</p>
+                                <CloudOff size={22} />
+                            </div>
+                            :
+                            <div className="course-on-btn" onClick={activateCourse}>
+                                <p>Bật khóa học</p>
+                                <CloudBackup size={22} />
+                            </div>
+                        }
+                    </div>
                     <textarea
                         name="description"
                         rows="6"

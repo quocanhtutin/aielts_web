@@ -21,6 +21,7 @@ import profile_icon from './profile_icon.png'
 import logout_icon from './logout_icon.png'
 import add_icon from './add_icon.png'
 import upload_area from './upload_area.png'
+import micro from './micro.png'
 
 export const assets = {
     bullet,
@@ -43,7 +44,8 @@ export const assets = {
     profile_icon,
     logout_icon,
     add_icon,
-    upload_area
+    upload_area,
+    micro
 }
 
 export const course_list = [

@@ -3,16 +3,25 @@ import './CourseDisplay.css'
 import { StoreContext } from '../../context/StoreContext'
 import CourseItem from '../CourseItem/CourseItem'
 import Reveal from '../Reveal/Reveal'
-const CourseDisplay = ({ courses, nav }) => {
+const CourseDisplay = ({ courses, nav, deactivateCourse, activateCourse }) => {
 
     return (
         <div className='course-display' id='course-dicplay'>
             <div className='course-display-list'>
                 {courses.map((item, index) => {
                     return (
-                        <Reveal key={index}>
-                            <CourseItem key={index} id={item._id} name={item.name} description={item.description} price={item.price} image={item.image} onClickMore={(id) => nav(id)} />
-                        </Reveal>
+                        <CourseItem
+                            key={index}
+                            id={item._id}
+                            name={item.name}
+                            description={item.description}
+                            price={item.price}
+                            image={item.image}
+                            onClickMore={(id) => nav(id)}
+                            isActive={item.isActive}
+                            deactivateCourse={deactivateCourse}
+                            activateCourse={activateCourse}
+                        />
                     )
                 })}
             </div>

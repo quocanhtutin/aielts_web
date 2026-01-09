@@ -73,14 +73,12 @@ const AccountManagement = () => {
 
   return (
     <div className="account-management">
-      <h2>Quản lý tài khoản</h2>
-
       <div className="user-section">
         <div className="section-header">
           <h3>Danh sách người dùng</h3>
-          <button onClick={() => setShowInactive(!showInactive)}>
+          <p className="show-inactive-user" onClick={() => setShowInactive(!showInactive)}>
             {showInactive ? "Ẩn user bị vô hiệu hóa" : "Hiện user bị vô hiệu hóa"}
-          </button>
+          </p>
         </div>
 
         <div className="list-table">

@@ -7,10 +7,11 @@ import * as XLSX from "xlsx";
 
 const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, editLesson, newLesson, deleteLesson }) => {
     const { url, token } = useContext(StoreContext);
+    const [saving, setSaving] = useState(false)
     const [formData, setFormData] = useState({
         number: newLesson,
         title: "",
-        linkVideo: null,
+        linkVideo: "",
         linkPDF: null,
         exercisePdf: null,
         linkAudio: null,
@@ -18,7 +19,7 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
     });
 
     const [showQuestionForm, setShowQuestionForm] = useState(false);
-    const [questionInput, setQuestionInput] = useState({ order: "", answer: "" });
+    const [questionInput, setQuestionInput] = useState({ order: "", answer: "", title: "" });
     const [loadingLesson, setLoadingLesson] = useState(false);
 
     const handleChange = (e) => {
@@ -38,16 +39,16 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
     };
 
     const handleAddQuestion = () => {
-        const { order, answer } = questionInput;
-        if (!order || !answer.trim()) {
+        const { order, answer, title } = questionInput;
+        if (!order) {
             toast.error("Vui lòng nhập đủ số thứ tự và đáp án!");
             return;
         }
         setFormData((prev) => ({
             ...prev,
-            questions: [...prev.questions, { order, answer }],
+            questions: [...prev.questions, { order, answer, title }],
         }));
-        setQuestionInput({ order: "", answer: "" });
+        setQuestionInput({ order: "", answer: "", title: "" });
         setShowQuestionForm(false);
     };
 
@@ -60,12 +61,13 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSaving(true)
 
         const data = new FormData();
         data.append("courseId", courseId);
         data.append("number", formData.number);
         data.append("title", formData.title);
-        if (formData.linkVideo) data.append("video", formData.linkVideo);
+        if (formData.linkVideo) data.append("linkVideo", formData.linkVideo);
         if (formData.linkPDF) data.append("pdf", formData.linkPDF);
         if (formData.exercisePdf) data.append("exercisePdf", formData.exercisePdf);
         if (formData.linkAudio) data.append("audio", formData.linkAudio);
@@ -83,14 +85,14 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
                 setFormData({
                     number: "",
                     title: "",
-                    linkVideo: null,
+                    linkVideo: "",
                     linkPDF: null,
                     exercisePdf: null,
                     linkAudio: null,
                     questions: [],
                 });
                 onLessonAdded?.();
-                onClose();
+                setSaving(false)
             } else {
                 toast.error("Lỗi khi thêm bài học");
             }
@@ -102,12 +104,13 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
 
     const updateLesson = async (e) => {
         e.preventDefault();
+        setSaving(true)
 
         const data = new FormData();
         data.append("lessonId", editLesson._id);
         data.append("number", formData.number);
         data.append("title", formData.title);
-        if (formData.linkVideo && typeof formData.linkVideo !== "string") data.append("video", formData.linkVideo);
+        if (formData.linkVideo && typeof formData.linkVideo == "string") data.append("linkVideo", formData.linkVideo);
         if (formData.linkPDF && typeof formData.linkPDF !== "string") data.append("pdf", formData.linkPDF);
         if (formData.exercisePdf && typeof formData.exercisePdf !== "string") data.append("exercisePdf", formData.exercisePdf);
         if (formData.linkAudio && typeof formData.linkAudio !== "string") data.append("audio", formData.linkAudio);
@@ -125,14 +128,14 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
                 setFormData({
                     number: "",
                     title: "",
-                    linkVideo: null,
+                    linkVideo: "",
                     linkPDF: null,
                     exercisePdf: null,
                     linkAudio: null,
                     questions: [],
                 });
-                onLessonAdded?.();
-                onClose();
+                onLessonAdded?.()
+                setSaving(false)
             } else {
                 toast.error("Lỗi khi cập nhật bài học");
             }
@@ -226,8 +229,6 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
         reader.readAsArrayBuffer(file);
     };
 
-
-
     return (
         <div className="popup-overlay" onClick={onClose}>
             <div
@@ -265,20 +266,13 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
                     </div>
 
                     <div className="form-group">
-                        <label>Video bài học</label>
-                        {formData.linkVideo && typeof formData.linkVideo === "string" ? (
-                            <div className="file-preview">
-                                <a href={formData.linkVideo} target="_blank" rel="noopener noreferrer">Xem video</a>
-                                <button type="button" className="delete-btn" onClick={() => handleRemoveFile("video")}>×</button>
-                            </div>
-                        ) : (
-                            <input
-                                type="file"
-                                name="linkVideo"
-                                accept="video/*"
-                                onChange={handleFileChange}
-                            />
-                        )}
+                        <label>Link video bài học</label>
+                        <input
+                            type="text"
+                            name="linkVideo"
+                            value={formData.linkVideo}
+                            onChange={handleChange}
+                        />
                     </div>
 
                     <div className="form-group">
@@ -331,81 +325,90 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
                                 />
                             )}
                         </div>}
-                    {courseCategory === "Reading" || courseCategory === "Listening" &&
-                        <div className="form-group question-section">
-                            <label>Đáp án</label>
-                            <div className="form-group">
-                                <label>Nhập danh sách đáp án từ Excel</label>
+
+                    <div className="form-group question-section">
+                        <label>Bài tập</label>
+                        <div className="form-group">
+                            <label>Nhập danh sách bài từ Excel</label>
+                            <input
+                                type="file"
+                                accept=".xlsx, .xls"
+                                onChange={handleExcelUpload}
+                            />
+                        </div>
+
+                        {showQuestionForm ? (
+                            <div className="question-form">
                                 <input
-                                    type="file"
-                                    accept=".xlsx, .xls"
-                                    onChange={handleExcelUpload}
+                                    type="number"
+                                    min="1"
+                                    placeholder="STT"
+                                    value={questionInput.order}
+                                    onChange={(e) =>
+                                        setQuestionInput({
+                                            ...questionInput,
+                                            order: e.target.value,
+                                        })
+                                    }
                                 />
-                            </div>
 
-                            {showQuestionForm ? (
-                                <div className="question-form">
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        placeholder="Số thứ tự"
-                                        value={questionInput.order}
-                                        onChange={(e) =>
-                                            setQuestionInput({
-                                                ...questionInput,
-                                                order: e.target.value,
-                                            })
-                                        }
-                                    />
-
-                                    <input
-                                        type="text"
-                                        placeholder="Đáp án"
-                                        value={questionInput.answer}
-                                        onChange={(e) =>
+                                <textarea
+                                    type="text"
+                                    placeholder={(courseCategory === "Reading" || courseCategory === "Listening") ? "Đáp án" : "Đề bài"}
+                                    value={courseCategory !== "Speaking" ? questionInput.answer : questionInput.title}
+                                    onChange={(e) => {
+                                        if (courseCategory !== "Speaking") {
                                             setQuestionInput({
                                                 ...questionInput,
                                                 answer: e.target.value,
                                             })
                                         }
-                                    />
+                                        else {
+                                            setQuestionInput({
+                                                ...questionInput,
+                                                title: e.target.value,
+                                            })
+                                        }
+                                    }
+                                    }
+                                />
 
-                                    <button type="button" className="add-question-btn" onClick={handleAddQuestion}>
-                                        Thêm
-                                    </button>
-                                    <button type="button" className="close-question-btn" onClick={() => setShowQuestionForm(false)}>
-                                        Đóng
-                                    </button>
-                                </div>
+                                <button type="button" className="add-question-btn" onClick={handleAddQuestion}>
+                                    Thêm
+                                </button>
+                                <button type="button" className="close-question-btn" onClick={() => setShowQuestionForm(false)}>
+                                    Đóng
+                                </button>
+                            </div>
 
-                            ) :
-                                <button
-                                    type="button"
-                                    className="add-question-btn"
-                                    onClick={() => { setQuestionInput({ order: formData.questions.length + 1, answer: "" }); setShowQuestionForm(true) }}
-                                >
-                                    + Thêm câu hỏi
-                                </button>}
+                        ) :
+                            <button
+                                type="button"
+                                className="add-question-btn"
+                                onClick={() => { setQuestionInput({ order: formData.questions.length + 1, answer: "" }); setShowQuestionForm(true) }}
+                            >
+                                + Thêm câu hỏi
+                            </button>}
 
-                            {formData.questions.length > 0 && (
-                                <ul className="question-list">
-                                    {formData.questions.map((q, index) => (
-                                        <li key={index} className="question-item">
-                                            <span>
-                                                <b>{q.order}.</b> {q.answer}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                className="delete-btn"
-                                                onClick={() => handleDeleteQuestion(index)}
-                                            >
-                                                ×
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>}
+                        {formData.questions.length > 0 && (
+                            <ul className="question-list">
+                                {formData.questions.map((q, index) => (
+                                    <li key={index} className="question-item">
+                                        <span>
+                                            <b>{q.order}.</b> {q.answer || q.title}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="delete-btn"
+                                            onClick={() => handleDeleteQuestion(index)}
+                                        >
+                                            ×
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
 
                     <div className="popup-actions">
                         {editLesson ? (
@@ -420,7 +423,7 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
                         ) : (
                             <>
                                 <button type="submit" className="submit-btn">
-                                    Lưu bài học
+                                    {saving ? "Đang lưu bài học" : "Lưu bài học"}
                                 </button>
                                 <button
                                     type="button"

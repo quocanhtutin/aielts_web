@@ -6,48 +6,55 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const OwnedCourses = () => {
-    const { url, token, courses } = useContext(StoreContext);
-    const [ownedCourses, setOwnedCourses] = useState([]);
-    const [ownedCoursesDis, setOwnedCoursesDis] = useState([]);
+    const { courses, ownedCourses } = useContext(StoreContext)
+    const [activeCourses, setActiveCourses] = useState([])
+    const [expiredCourses, setExpiredCourses] = useState([])
     const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchUserCourses = async () => {
-            try {
-                const response = await axios.get(`${url}/api/user/ownedCourses`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+        if (!courses?.length || !ownedCourses?.length) return
 
-                if (response.data.success && response.data.data) {
-                    setOwnedCourses(response.data.data.ownedCourses || []);
-                }
-            } catch (err) {
-                console.error("Fetch owned courses error:", err);
-            }
-        };
+        const now = new Date()
 
-        fetchUserCourses();
-    }, [url, token]);
+        const active = []
+        const expired = []
 
-    useEffect(() => {
-        if (!courses?.length || !ownedCourses?.length) return;
-
-        const filtered = courses.filter((course) =>
-            ownedCourses.some(
-                (owned) => String(owned.courseId) === String(course._id)
+        ownedCourses.forEach(owned => {
+            const course = courses.find(
+                c => String(c._id) === String(owned.courseId)
             )
-        );
 
-        console.log(ownedCourses)
-        console.log(filtered)
+            if (!course) return
 
-        setOwnedCoursesDis(filtered);
-    }, [courses, ownedCourses]);
+            const courseWithMeta = {
+                ...course,
+                purchaseDate: owned.purchaseDate,
+                expireDate: owned.expireDate
+            }
+
+            if (owned.expireDate && new Date(owned.expireDate) >= now) {
+                active.push(courseWithMeta)
+            } else {
+                expired.push(courseWithMeta)
+            }
+        })
+
+        setActiveCourses(active)
+        setExpiredCourses(expired)
+    }, [courses, ownedCourses])
 
     return (
         <div className="owned-courses-container">
             <h2>Khoá học của bạn</h2>
-            <CourseDisplay courses={ownedCoursesDis} nav={(id) => navigate(`/user/ownedCourse/${id}`)} />
+            <CourseDisplay courses={activeCourses} nav={(id) => navigate(`/user/ownedCourse/${id}`)} />
+            {expiredCourses.length > 0 &&
+                <>
+                    <h2 className="expired-title">Khoá học đã hết hạn</h2>
+                    <CourseDisplay
+                        courses={expiredCourses}
+                        nav={(id) => navigate(`/course/${id}`)}
+                    />
+                </>}
         </div>
     );
 };

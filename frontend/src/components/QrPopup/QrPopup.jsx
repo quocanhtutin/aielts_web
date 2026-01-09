@@ -1,68 +1,60 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import './QrPopup.css'
+import { Check } from 'lucide-react'
 
-const QrPopup = ({ onCheckTransaction, qrImageUrl, amount, textInfo, onClose }) => {
+const QrPopup = ({ qrImageUrl, expireAt, onClose, onWaitPayment }) => {
+    const [status, setStatus] = useState("waiting")
+    const [timeLeft, setTimeLeft] = useState(0)
 
-    const [status, setStatus] = useState("idle")
-
-    const handleCheck = () => {
-        setStatus("checking")
-        onCheckTransaction(setStatus)
-    }
-
+    //Countdown
     useEffect(() => {
-        if (status === "checking") {
-            const timer = setTimeout(() => {
-                setStatus("timeout")
-            }, 60000)
-            return () => clearTimeout(timer)
+        const end = new Date(expireAt).getTime()
+        const interval = setInterval(() => {
+            const diff = Math.floor((end - Date.now()) / 1000)
+            setTimeLeft(diff)
+            if (diff <= 0) clearInterval(interval)
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [expireAt])
+
+    //Tự động chờ backend
+    useEffect(() => {
+        if (status === "waiting") {
+            onWaitPayment(setStatus)
         }
-    }, [status])
+    }, [])
+
 
     return (
         <div className="qr-popup-overlay">
-            <div className="qr-popup-container" onClick={(e) => e.stopPropagation()}>
+            <div className="qr-popup-container">
+                <span className="qr-popup-close" onClick={onClose}>×</span>
 
-                <p className="qr-popup-close" onClick={onClose}>×</p>
-
-                {/* TIÊU ĐỀ */}
                 <h3>
-                    {status === "checking" ? "Đang kiểm tra thanh toán..." :
-                        status === "success" ? "Đăng ký thành công!" :
-                            "Quét mã QR để thanh toán"}
+                    {status === "success"
+                        ? "Thanh toán thành công"
+                        : timeLeft <= 0
+                            ? "QR đã hết hạn"
+                            : "Quét QR để thanh toán"}
                 </h3>
 
-                {/* QR / SPINNER / SUCCESS */}
-                <div className="qr-content">
-                    {status === "idle" || status === "timeout" ? (
-                        <img className="qr-popup-image" src={qrImageUrl} alt="QR Code" />
-                    ) : null}
+                {status !== "success" && timeLeft > 0 && (
+                    <>
+                        <p className="countdown">
+                            Thời gian còn lại: {Math.floor(timeLeft / 60)}:
+                            {String(timeLeft % 60).padStart(2, "0")}
+                        </p>
+                        <img className="qr-popup-image" src={qrImageUrl} alt="QR" />
+                    </>
+                )}
 
-                    {status === "checking" && (
+                {status === "success" && (
+                    <div className="success-check">
                         <div className="loader"></div>
-                    )}
-
-                    {status === "success" && (
-                        <div className="success-check">✔</div>
-                    )}
-                </div>
-
-                {/* TEXT mô tả */}
-                {status === "checking" && <p className="checking-text">Đang kiểm tra giao dịch...</p>}
-                {status === "success" && <p className="success-text">Đăng ký thành công!</p>}
-
-                {/* NÚT */}
-                <button
-                    disabled={status === "checking" || status === "success"}
-                    className={status === "checking" || status === "success" ? "btn-disabled" : ""}
-                    onClick={handleCheck}
-                >
-                    {status === "success"
-                        ? "Đã thanh toán"
-                        : status === "checking"
-                            ? "Đang kiểm tra..."
-                            : "Tôi đã thanh toán"}
-                </button>
+                        <p className='success-text'>Đăng xử lý ...</p>
+                    </div>
+                )}
             </div>
         </div>
     )

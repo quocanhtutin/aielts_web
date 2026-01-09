@@ -1,5 +1,6 @@
 import React from 'react'
 import './LessonSideNav.css'
+import { Check } from 'lucide-react'
 
 const LessonSideNav = ({ lessons, setActiveLessonIndex, activeLessonIndex, lessonIsCompleted }) => {
     return (
@@ -12,11 +13,9 @@ const LessonSideNav = ({ lessons, setActiveLessonIndex, activeLessonIndex, lesso
                 >
                     <div className="lesson-number">
                         <div>Lesson {lesson.number}</div>
-                        {lessonIsCompleted(lesson) && (<span className="tick">✔</span>)}
+
                     </div>
-                    <div className="lesson-title">
-                        <div>{lesson.title}</div>
-                    </div>
+                    {lessonIsCompleted(lesson) && (<Check size={20} className='check' />)}
                 </div>
             ))}
         </nav>

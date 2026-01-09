@@ -67,26 +67,18 @@ const addCourse = async (req, res) => {
 const addLesson = async (req, res) => {
     try {
 
-        const { courseId, number, title } = req.body
+        const { courseId, number, title, linkVideo } = req.body
 
         if (!courseId) {
             return res.status(400).json({ success: false, message: "Missing courseId" });
         }
 
         let videoUrl = "";
+        if (linkVideo) { videoUrl = linkVideo }
+
         let pdfUrl = "";
         let exercisePdfUrl = "";
         let audioUrl = "";
-
-        if (req.files?.video) {
-            const original = req.files.video[0].originalname;
-            const videoResult = await uploadToCloudinary(
-                req.files.video[0].buffer,
-                "courses/videos",
-                original
-            );
-            videoUrl = videoResult.secure_url;
-        }
 
         if (req.files?.pdf) {
             const original = req.files.pdf[0].originalname;
@@ -175,6 +167,7 @@ const listCourse = async (req, res) => {
             image: 1,
             category: 1,
             createdAt: 1,
+            isActive: 1,
         })
         res.json({ success: true, data: courses })
     } catch (error) {
@@ -230,27 +223,19 @@ const courseUpdate = async (req, res) => {
 
 const lessonUpdate = async (req, res) => {
     try {
-        const { lessonId, number, title } = req.body;
+        const { lessonId, number, title, linkVideo } = req.body;
 
         if (!lessonId) {
             return res.status(400).json({ success: false, message: "Missing lessonId" });
         }
 
         let videoUrlUpdate = "";
+        if (linkVideo) { videoUrlUpdate = linkVideo }
+
         let pdfUrlUpdate = "";
         let exercisePdfUrlUpdate = "";
         let audioUrl = "";
 
-        // Upload video nếu có
-        if (req.files?.video) {
-            const original = req.files.video[0].originalname;
-            const videoResult = await uploadToCloudinary(
-                req.files.video[0].buffer,
-                "courses/videos",
-                original
-            );
-            videoUrlUpdate = videoResult.secure_url;
-        }
 
         if (req.files?.pdf) {
             const original = req.files.pdf[0].originalname;
@@ -365,6 +350,38 @@ const deleteLesson = async (req, res) => {
     }
 };
 
+const deactivateCourse = async (req, res) => {
+    try {
+        const { courseId } = req.body
+        const updatedCourse = await courseModel.findByIdAndUpdate(courseId, { isActive: false }, { new: true });
 
+        if (!updatedCourse) {
+            return res.status(404).json({ success: false, message: "Course not found" });
+        }
 
-export { addCourse, addLesson, listCourse, courseDetail, courseUpdate, lessonUpdate, deleteLesson }
+        return res.json({ success: true, message: "Course is inactive", data: updatedCourse });
+
+    } catch (err) {
+        console.error("Update course error:", err);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+const activateCourse = async (req, res) => {
+    try {
+        const { courseId } = req.body
+        const updatedCourse = await courseModel.findByIdAndUpdate(courseId, { isActive: true }, { new: true });
+
+        if (!updatedCourse) {
+            return res.status(404).json({ success: false, message: "Course not found" });
+        }
+
+        return res.json({ success: true, message: "Course is active", data: updatedCourse });
+
+    } catch (err) {
+        console.error("Update course error:", err);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+export { uploadToCloudinary, addCourse, addLesson, listCourse, courseDetail, courseUpdate, lessonUpdate, deleteLesson, deactivateCourse, activateCourse }

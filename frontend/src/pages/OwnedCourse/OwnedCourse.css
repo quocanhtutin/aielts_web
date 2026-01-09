@@ -19,12 +19,13 @@
 }
 .course-header { 
     margin-bottom: 12px; 
-    padding-left: 20px;
+    padding-left: 40px;
 }
 
 .owned-main { 
     padding: 0 12px; 
     overflow-y:auto; 
+    margin-bottom: 20px;
 }
 .media-block { 
     margin: 12px 0; 
@@ -49,23 +50,32 @@
     width: 125px;
 }
 .qnum { 
-    font-weight:700 
+    font-weight:700;
+    margin: 10px 0;
 }
-.answer-actions { 
+.answer-actions, .result-area, .transcript { 
     width: 100%;
     display:flex; 
     gap:8px; 
     margin-top:12px;
     justify-content: right;
 }
-.answer-actions button{
-    background: #2e89ff;
+.answer-actions button, .result-area button{
+    background: rgb(36, 106, 164);
     color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
+    margin-top: auto;
+    transition: background 0.2s ease;
+}
+.answer-actions button:hover, .result-area button:hover{
+    background: rgb(57, 146, 219);
+}
+.result-area button{
+    max-height: 30px;
 }
 .owned-right .card { 
     padding:12px; 
@@ -160,3 +170,65 @@ audio {
     border-radius: 6px;
     cursor: pointer;
 }
+
+.wr-item textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.wr-judgement {
+    white-space: pre-wrap;
+    width: 565px;
+    color: red;
+    font-style: italic;
+    font-size: 13px;
+}
+.speaking-trans{
+    /* white-space: pre-wrap; */
+    width: 100%;
+    color: rgb(33, 33, 33);
+    font-size: 13px;
+}
+
+.record-box {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 50px;
+}
+
+.rec-btn {
+    padding: 8px 14px;
+    border: none;
+    background-color: #eee;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+}
+.rec-btn img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rec-btn.recording {
+    background: #3b82f6;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+.file-row{
+    display:flex;
+    gap: 10px;
+}
+
+
+

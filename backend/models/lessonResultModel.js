@@ -5,6 +5,7 @@ const answerItemSchema = new mongoose.Schema({
     userAnswer: { type: String, required: true },
     actualAnswer: { type: String, default: "" },
     correct: { type: Boolean, default: false },
+    linkSpeaking: { type: String, default: "" }
 });
 
 const lessonResultSchema = new mongoose.Schema({

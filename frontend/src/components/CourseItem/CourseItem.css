@@ -5,6 +5,10 @@
     box-shadow: 0px 0px 10px #00000015;
     transition: 0.3s;
     animation: fadeIn 1s;
+    max-width: 300px;
+}
+.course-item:hover{
+    scale: 1.05;
 }
 .course-item-image{
     width: 100%;
@@ -41,18 +45,41 @@
     position: relative;
 }
 
-.course-item-button {
+.course-item-btn{
     position: absolute;
-    top: 60%;
-    right: 7%;
+    bottom: 20px;
+    right: 6%;
+    display: flex;
+    gap: 6px;
+}
+.more-item-button {
     border: none;
     color: white;
     font-weight: 500;
     padding: 0.5vw 1vw;
-    background-color: rgb(36, 106, 164);
+    background: rgb(36, 106, 164);
     font-size: max(1vm, 20px);
     border-radius: 50px;
     cursor: pointer;
     text-align: center;
+    transition: background 0.2s ease;
+}
+.more-item-button:hover{
+    background: rgb(57, 146, 219);
 }
 
+.activate-item-btn{
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 0.5vw 1vw;
+    background: #dc3545;
+    font-size: max(1vm, 20px);
+    border-radius: 50px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s ease;
+}
+.activate-item-btn:hover{
+    background: #ba2d3b;
+}

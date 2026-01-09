@@ -1,0 +1,133 @@
+.user-profile {
+    display: flex;
+    gap: 30px;
+    padding: 100px 100px 50px 100px;
+    justify-content: center;
+}
+
+.profile-left,
+.profile-right {
+    flex: 1;
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1.5px solid rgb(36, 106, 164);
+    max-width: 45%;
+    height: fit-content;
+}
+
+.profile-left button {
+    background: rgb(36, 106, 164);
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+.profile-left button:hover{
+    background: rgb(57, 146, 219);
+}
+
+.profile-field {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+.profile-field label {
+    display: block;
+    font-weight: 500;
+}
+
+.profile-field p {
+    max-width: 60%;
+    font-size: 15px;
+    padding-top: 8.5px;
+    padding-bottom: 8.5px;
+}
+
+.profile-field input, .change-password input {
+    width: 60%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #898989;
+    outline: none;
+    font-size: 15px;
+    transition: border-color 0.2s ease;
+}
+
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    justify-content: right;
+}
+
+.profile-left .cancel {
+    background: #ccc;
+}
+
+.profile-left .cancel:hover {
+    background: #eee;
+}
+
+.change-password input {
+    margin-top: 10px;
+}
+
+.error {
+    color: red;
+    font-size: 13px;
+}
+
+.course-item-pf {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.course-item-pf img {
+    width: 100px;
+    height: 70px;
+    object-fit: cover;
+}
+
+.change-pass-btn{
+    margin-top: 20px;
+    cursor: pointer;
+    justify-self: right;
+    font-size: 15px;
+    color: rgb(36, 106, 164, 0.292);
+    transition: color 0.2s ease;
+}
+.change-pass-btn:hover{
+    color: rgb(36, 106, 164);
+}
+.profile-left-header{
+    display: flex;
+    justify-content: space-between;
+}
+.edit-pf-btn{
+    color: rgba(36, 106, 164, 0.292);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.edit-pf-btn:hover{
+    color: rgb(36, 106, 164);
+}
+.change-password .btn-group{
+    margin-top:30px;
+}
+.change-password{
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+}
+.change-password.open{
+    max-height: 500px;
+}

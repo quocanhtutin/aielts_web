@@ -13,7 +13,8 @@ const courseSchema = new mongoose.Schema({
             linkVideo: String,
             linkPDF: String,
         }
-    ]
+    ],
+    isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
 const courseModel = mongoose.models.Course || mongoose.model("Course", courseSchema);

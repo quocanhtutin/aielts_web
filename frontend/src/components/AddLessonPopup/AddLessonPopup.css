@@ -20,11 +20,10 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
   animation: fadeIn 0.25s ease;
   position: relative;
-  max-height: 80vh; /* giới hạn chiều cao tối đa bằng 80% chiều cao màn hình */
-  overflow-y: auto; /* bật thanh cuộn dọc khi nội dung vượt quá */
+  max-height: 80vh; 
+  overflow-y: auto; 
 }
 
-/* Tùy chỉnh thanh cuộn (cho Chrome, Edge, Safari) */
 .popup-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -131,22 +130,27 @@
 .question-form {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap; /* tự xuống hàng nếu nhỏ */
+  gap: 8px;
+  width: 100%;
+  /* flex-wrap: wrap; tự xuống hàng nếu nhỏ */
 }
 
-.question-form input {
+.question-form input, .question-form textarea {
   flex: 1;
   padding: 7px 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 14px;
-  min-width: 120px;
+  max-width: 184px;
+  /* min-width: 120px; */
+}
+.question-form input[type="number"]{
+  max-width: 60px;
 }
 
 .add-question-btn,
 .close-question-btn {
-  background: #2e89ff;
+  background: rgb(36, 106, 164);
   color: white;
   border: none;
   padding: 8px 14px;
@@ -162,7 +166,7 @@
 }
 
 .add-question-btn:hover {
-  background: #1b6ee0;
+  background: rgb(57, 146, 219);
 }
 
 .close-question-btn:hover {

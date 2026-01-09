@@ -16,6 +16,7 @@ import OwnedCourses from './pages/OwnedCourses/OwnedCourses'
 import OwnedCourse from './pages/OwnedCourse/OwnedCourse'
 import ContactInformationManagement from './pages/ContactInformationManagement/ContactInformationManagement'
 import Payment from './pages/Payment/Payment'
+import UserProfile from './pages/UserProfile/UserProfile'
 
 const App = () => {
 
@@ -25,7 +26,7 @@ const App = () => {
   return (
     <>
       {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
-      <div>
+      <div className='app-container'>
         <ToastContainer />
         <Navbar setShowLogin={setShowLogin} />
         <Routes>
@@ -38,6 +39,7 @@ const App = () => {
               <Route path='/admin/coursemanagement' element={<CourseManagement />} />
               <Route path='/admin/coursedetail/:id' element={<CourseDetailManagement />} />
               <Route path='/admin/contactInformation' element={<ContactInformationManagement />} />
+              <Route path='/admin/profile' element={<UserProfile />} />
             </>
           )}
           {userRole === "user" && (
@@ -45,6 +47,7 @@ const App = () => {
               <Route path='/user/ownedCourses' element={<OwnedCourses />} />
               <Route path='/user/ownedCourse/:id' element={<OwnedCourse />} />
               <Route path='/user/register/:id' element={<Payment />} />
+              <Route path='/user/profile' element={<UserProfile />} />
             </>
           )}
         </Routes>

@@ -9,7 +9,7 @@ import Footer from '../../components/Footer/Footer'
 
 const Home = () => {
 
-    const { courses } = useContext(StoreContext)
+    const { courses, activeCourses } = useContext(StoreContext)
     const navigate = useNavigate()
 
     return (
@@ -18,7 +18,7 @@ const Home = () => {
             <Instruction />
             <div>
                 <h2 className="courses-home">Các khóa học</h2>
-                <CourseDisplay courses={courses} nav={(id) => navigate(`/course/${id}`)} />
+                <CourseDisplay courses={activeCourses} nav={(id) => navigate(`/course/${id}`)} />
             </div>
             <Footer />
         </div>

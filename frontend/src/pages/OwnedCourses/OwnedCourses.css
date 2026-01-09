@@ -1,6 +1,10 @@
 .owned-courses-container{
     margin-top: 100px;
+    margin-bottom:50px;
 }
 .owned-courses-container h2{
     margin-left:100px;
+}
+.expired-title{
+    margin-top:30px;
 }
