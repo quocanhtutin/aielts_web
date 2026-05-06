@@ -1,0 +1,368 @@
+import React, { useState, useEffect, useRef } from "react";
+import "./ListeningRenderer.css";
+
+const Instruction = ({ questionRange, title, note }) => {
+  return (
+    <div className="ls-instruction">
+      <div className="ls-q-range">{questionRange}</div>
+      <div className="ls-title">{title}</div>
+      <div className="ls-note">{note}</div>
+    </div>
+  );
+};
+
+const NoteBlock = ({ block, answers, onChange }) => {
+  return (
+    <div className="ls-note-block">
+      <h3>{block.heading}</h3>
+
+      {block.items.map((item, i) => (
+        <div key={i} className="ls-line">
+          {item.content.map((c, idx) => {
+            if (typeof c === "string") return <span key={idx}>{c} </span>;
+
+            if (typeof c === "object" && c.q) {
+              return (
+                <div key={idx} style={{ display: "inline" }} id={`q-${c.q}`}>
+                    <p className="ls_question_number">{c.q}.</p>
+                    <input
+                        key={idx}
+                        className="ls-input"
+                        value={answers[c.q] || ""}
+                        onChange={(e) => onChange(c.q, e.target.value)}
+                    />
+                </div>
+              );
+            }
+
+            return null;
+          })}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const TableBlock = ({ block, answers, onChange }) => {
+    const renderCellContent = (cell, answers, onChange) => {
+        if (typeof cell === "string") return cell;
+
+        if (Array.isArray(cell)) {
+            return cell.map((c, i) => {
+                if (typeof c === "string") return <span key={i}>{c} </span>;
+
+                if (typeof c === "object" && c.q) {
+                    return (
+                        <div key={i} style={{ display: "inline" }} id={`q-${c.q}`}>
+                            <p className="ls_question_number">{c.q}.</p>
+                            <input
+                                key={i}
+                                className="ls-input"
+                                value={answers[c.q] || ""}
+                                onChange={(e) => onChange(c.q, e.target.value)}
+                            />
+                        </div>
+                    
+                    );
+                }
+
+                return null;
+            });
+        }
+
+        if (typeof cell === "object" && cell.q) {
+            return (
+                <div style={{ display: "inline" }} id={`q-${cell.q}`}>
+                            <p className="ls_question_number">{cell.q}.</p>
+                            <input
+                                className="ls-input"
+                                value={answers[cell.q] || ""}
+                                onChange={(e) => onChange(cell.q, e.target.value)}
+                            />
+                        </div>
+            );
+        }
+
+        return null;
+        };
+  return (
+    <div className="ls-table">
+      <table>
+        <thead>
+          <tr>
+            {block.headers.map((h, i) => (
+              <th key={i}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+
+        <tbody>
+          {block.rows.map((row, i) => (
+            <tr key={i}>
+              {row.map((cell, j) => {return(
+                <td key={j}>
+                    {renderCellContent(cell, answers, onChange)}
+                </td>
+              )
+                })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const MCQBlock = ({ block, answers, onChange }) => {
+  return (
+    <div className="ls-mcq">
+      {block.questions.map((q) => {
+        const isImageMode = q.options?.[0]?.type === "image";
+
+        return (
+          <div key={q.q} className="ls-mcq-item" id={`q-${q.q}`}>
+            <div className="ls-question-title">
+              {q.q}. {q.question}
+            </div>
+
+            <div
+              className={`ls-options ${
+                isImageMode ? "image-mode" : ""
+              }`}
+            >
+              {q.options.map((opt) => (
+                <label
+                  key={opt.key}
+                  className={`ls-option ${
+                    answers[q.q] === opt.key ? "selected" : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={`q-${q.q}`}
+                    value={opt.key}
+                    checked={answers[q.q] === opt.key}
+                    onChange={() => onChange(q.q, opt.key)}
+                  />
+
+                  <div className="option-content">
+                    <div className="option-label">{opt.key}</div>
+
+                    {opt.type === "image" ? (
+                      <img src={opt.src.url} alt={opt.key} />
+                    ) : (
+                      <span>{opt.text}</span>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const MatchingBlock = ({ block, answers, onChange }) => {
+  const [openQ, setOpenQ] = useState(null);
+  const wrapperRef = useRef();
+
+  // CLICK OUTSIDE → CLOSE POPUP
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpenQ(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // FILTER OPTIONS
+  const getAvailableOptions = (currentQ) => {
+    if (block.duplicate) return block.options;
+
+    const usedValues = Object.entries(answers)
+      .filter(([q, val]) => parseInt(q) !== currentQ && val)
+      .map(([_, val]) => val);
+
+    return block.options.filter(
+      (opt) => !usedValues.includes(opt.key)
+    );
+  };
+
+  return (
+    <div className="ls-matching" ref={wrapperRef}>
+      {/* OPTIONS */}
+      <div className="ls-match-options">
+        {block.options.map((opt) => (
+          <div key={opt.key}>
+            <strong>{opt.key}</strong> – {opt.text}
+          </div>
+        ))}
+      </div>
+
+      {/* QUESTIONS */}
+      <div className="ls-match-questions">
+        {block.questions.map((q) => {
+          const selected = answers[q.q];
+          const availableOptions = getAvailableOptions(q.q);
+
+          const isDisabled =
+            !block.duplicate && availableOptions.length === 0 && !selected;
+
+          return (
+            <div
+              key={q.q}
+              className="ls-match-item"
+              id={`q-${q.q}`}
+            >
+              <span>
+                {q.q}. {q.label}
+              </span>
+
+              <div className="ls-select-wrapper">
+                {/* SELECT BOX */}
+                <div
+                  className={`ls-select ${isDisabled ? "disabled" : ""}`}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    setOpenQ(openQ === q.q ? null : q.q);
+                  }}
+                >
+                  {selected || "--"}
+                </div>
+
+                {/* POPUP */}
+                {openQ === q.q && !isDisabled && (
+                  <div className="ls-dropdown">
+                    <div
+                        className="ls-option-item"
+                        onClick={() => {
+                          onChange(q.q, "");
+                          setOpenQ(null);
+                        }}
+                      >
+                        --
+                      </div>
+                    {availableOptions.map((opt) => (
+                      <div
+                        key={opt.key}
+                        className="ls-option-item"
+                        onClick={() => {
+                          onChange(q.q, opt.key);
+                          setOpenQ(null);
+                        }}
+                      >
+                        {opt.key} – {opt.text}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const DiagramLabelBlock = ({ block, answers, onChange }) => {
+  return (
+    <div className="ls-diagram-label">
+      {block.questions.map((q) => (
+        <div key={q.q} className="ls-diagram-item" id={`q-${q.q}`}>
+          <span>{q.q}</span>
+          <input
+            className="ls-input"
+            value={answers[q.q] || ""}
+            onChange={(e) => onChange(q.q, e.target.value)}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const ImageBlock = ({ src, alt }) => {
+  return (
+    <div className="ls-image">
+      <img src={src} alt={alt} />
+    </div>
+  );
+};
+
+const ListeningRenderer = ({ blocks, answers, onChange }) => {
+  return (
+    <div>
+      {blocks.map((block, index) => {
+        switch (block.type) {
+          case "instruction":
+            return <Instruction key={index} {...block} />;
+
+          case "note":
+            return (
+              <NoteBlock
+                key={index}
+                block={block}
+                answers={answers}
+                onChange={onChange}
+              />
+            );
+
+          case "table":
+            return (
+              <TableBlock
+                key={index}
+                block={block}
+                answers={answers}
+                onChange={onChange}
+              />
+            );
+
+          case "mcq":
+                return (
+                <MCQBlock
+                    key={index}
+                    block={block}
+                    answers={answers}
+                    onChange={onChange}
+                />
+                );
+
+            case "matching":
+                return (
+                <MatchingBlock
+                    key={index}
+                    block={block}
+                    answers={answers}
+                    onChange={onChange}
+                />
+                );
+
+            case "diagram-label":
+                return (
+                    <DiagramLabelBlock
+                    key={index}
+                    block={block}
+                    answers={answers}
+                    onChange={onChange}
+                    />
+                );
+
+            case "image":
+                return <ImageBlock key={index} {...block} />;
+
+            default:
+                return null;
+        }
+      })}
+    </div>
+  );
+};
+
+export default ListeningRenderer;

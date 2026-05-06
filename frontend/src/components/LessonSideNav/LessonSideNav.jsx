@@ -13,7 +13,6 @@ const LessonSideNav = ({ lessons, setActiveLessonIndex, activeLessonIndex, lesso
                 >
                     <div className="lesson-number">
                         <div>Lesson {lesson.number}</div>
-
                     </div>
                     {lessonIsCompleted(lesson) && (<Check size={20} className='check' />)}
                 </div>

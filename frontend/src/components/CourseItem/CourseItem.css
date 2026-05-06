@@ -7,7 +7,7 @@
     animation: fadeIn 1s;
     max-width: 300px;
 }
-.course-item:hover{
+.course-item.displayed:hover{
     scale: 1.05;
 }
 .course-item-image{
@@ -82,4 +82,10 @@
 }
 .activate-item-btn:hover{
     background: #ba2d3b;
+}
+
+.skeleton.image{
+    height: 180px;
+    border-radius: 15px 15px 0px 0px;
+    margin: 0;
 }

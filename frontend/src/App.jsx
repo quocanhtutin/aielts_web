@@ -17,6 +17,15 @@ import OwnedCourse from './pages/OwnedCourse/OwnedCourse'
 import ContactInformationManagement from './pages/ContactInformationManagement/ContactInformationManagement'
 import Payment from './pages/Payment/Payment'
 import UserProfile from './pages/UserProfile/UserProfile'
+import MyNewWords from './components/NewWordsPages/MyNewWords'
+import FlashCards from './components/NewWordsPages/StudyNewWords/FlashCards'
+import PublicNewWordCollections from './components/NewWordsPages/PublicCollections/PublicNewWordCollections'
+import CambridgeLibrary from './pages/Testing/CambridgeLibrary'
+import ListeningTestPage from './pages/Testing/ListeningTestPage'
+import ReadingTestPage from './pages/Testing/ReadingTestPage'
+import WritingTestPage from './pages/Testing/WritingTestPage'
+import FlashcardManagement from './pages/FlashcardManagement/FlashcardManagement'
+import TestManagement from './pages/TestManagement/TestManagement'
 
 const App = () => {
 
@@ -33,6 +42,11 @@ const App = () => {
           <Route path='/' element={<Home />} />
           <Route path='/courses' element={<Course courses={courses} />} />
           <Route path='/course/:id' element={<CourseDetail setShowLogin={setShowLogin} />} />
+          <Route path='/publiccollection' element= {<PublicNewWordCollections setShowLogin={setShowLogin} />}/>
+          <Route path='/cambridgelibrary' element={<CambridgeLibrary />} />
+          <Route path='/listeningtest' element={<ListeningTestPage />} />
+          <Route path='/readingtest' element={<ReadingTestPage />} />
+          <Route path='/writingtest' element={<WritingTestPage />} />
           {userRole === "admin" && (
             <>
               <Route path='/admin/accountmanagement' element={<AccountManagement />} />
@@ -40,6 +54,8 @@ const App = () => {
               <Route path='/admin/coursedetail/:id' element={<CourseDetailManagement />} />
               <Route path='/admin/contactInformation' element={<ContactInformationManagement />} />
               <Route path='/admin/profile' element={<UserProfile />} />
+              <Route path='/admin/flashcardmanagement/:id' element={<FlashcardManagement />} />
+              <Route path='/admin/testmanagement/:id' element={<TestManagement />} />
             </>
           )}
           {userRole === "user" && (
@@ -48,6 +64,8 @@ const App = () => {
               <Route path='/user/ownedCourse/:id' element={<OwnedCourse />} />
               <Route path='/user/register/:id' element={<Payment />} />
               <Route path='/user/profile' element={<UserProfile />} />
+              <Route path='/user/mynewwordsboard' element={<MyNewWords />} />
+              <Route path='/user/flashcards/:collectionID' element={<FlashCards />} />
             </>
           )}
         </Routes>

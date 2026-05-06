@@ -1,0 +1,229 @@
+.camlib-container {
+  padding: 60px 100px 30px 100px;
+  background: #fff;
+  min-height: 1000px;
+  background: linear-gradient(rgba(36, 106, 164, 0.724), white, white, white, white, white, white, rgba(36, 106, 164, 0.788) );
+}
+
+.camlib-title {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 10px;
+  margin-top:30px;
+  color: #333;
+}
+
+.camlib-title span {
+  color: #0ea5a4;
+}
+
+.camlib-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* BOOK */
+.camlib-book {
+  margin-bottom: 40px;
+}
+
+.camlib-book-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* GRID */
+.camlib-test-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+/* CARD */
+.camlib-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  transition: 0.2s;
+}
+
+.camlib-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.camlib-card-header {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.camlib-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.camlib-progress {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* BUTTON */
+.camlib-btn {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  outline:none;
+}
+
+.camlib-btn-listening {
+  background: rgb(36, 106, 164);
+}
+
+.camlib-btn-reading {
+  background: #059669;
+}
+
+.camlib-btn-writing {
+  background: rgb(36, 106, 164);
+}
+
+.camlib-btn:hover {
+  opacity: 0.9;
+}
+
+/* PAGINATION */
+.camlib-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.camlib-page-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.camlib-page-btn:hover {
+  background: #e2e8f0;
+}
+
+.camlib-page-btn.active {
+  background: #334155;
+  color: #fff;
+  border: none;
+}
+
+.mode-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.mode-popup {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  position: relative;
+}
+
+.mode-popup-close {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  opacity:0.7;
+}
+
+.mode-popup-close:hover {
+  opacity:1;
+}
+
+.mode-popup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.mode-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s;
+  background: #fafafa;
+  width:320px;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #333;
+}
+
+.mode-card:hover {
+  background: rgba(36, 106, 164, 0.062);
+  border: 1px solid rgb(36, 106, 164);
+}
+
+.mode-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.mode-icon svg{
+  width: 40px;
+  height: 40px;
+}
+
+.mode-card h2 {
+  margin-bottom: 10px;
+}
+
+.mode-card p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.mode-btn {
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.mode-btn.dark {
+  background: rgb(36, 106, 164);
+}

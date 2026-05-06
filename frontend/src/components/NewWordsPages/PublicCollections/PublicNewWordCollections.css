@@ -1,0 +1,270 @@
+/* word */
+.pub_flashcard-container{
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	gap:20px;
+	width:100%;
+}
+
+.pub_flashcard{
+	width:200px;
+	height:100px;
+	perspective:1000px;
+	cursor:pointer;
+}
+
+.pub_flashcard-inner{
+	position:relative;
+	width:100%;
+	height:100%;
+	transition:transform 0.6s;
+	transform-style:preserve-3d;
+}
+
+.pub_flashcard.is-flipped .pub_flashcard-inner{
+	transform:rotateY(180deg);
+}
+
+.pub_flashcard-front,
+.pub_flashcard-back{
+	position:absolute;
+	width:100%;
+	height:100%;
+	border-radius:12px;
+	backface-visibility:hidden;
+	display:flex;
+	flex-direction:column;
+	justify-content:center;
+	align-items:center;
+	padding:20px;
+	box-shadow:0 4px 4px rgba(0,0,0,0.15);
+}
+
+.pub_flashcard-front{
+
+	background:linear-gradient(rgb(36, 106, 164), rgb(27, 79, 121));
+	color:white;
+
+}
+
+.pub_flashcard-back{
+
+	background:white;
+	color:#333;
+
+	transform:rotateY(180deg);
+    font-size: 14px;
+
+}
+
+.pub_flashcard-front .type{
+
+	font-size:14px;
+	opacity:0.8;
+
+}
+
+.pub_flashcard-front .pron{
+
+	margin-top:5px;
+	font-size:14px;
+	color:#c7d2fe;
+
+}
+
+.hint{
+
+	margin-top:20px;
+	font-size:12px;
+	opacity:0.7;
+
+}
+
+.pub_flashcard-arrow{
+	border:none;
+	cursor:pointer;
+	font-size:18px;
+	transition:0.2s;
+    size: 10px;
+    color: #33333378;
+}
+.pub_flashcard-arrow:hover{
+    color: #333;
+}
+.pub_flashcard_def{
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* topic */
+.public_topic_container{
+    width: 100%;
+    margin: auto;
+    border-radius: 8px;
+    box-shadow: 0px 0px 4px #00000015;
+    transition: 0.3s;
+    max-width: 300px;
+    padding: 12px;
+    font-size: 14px;
+    border: 1.5px solid rgb(36, 106, 164);
+}
+
+.public_topic_header{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.public_topic{
+    font-size: 16px;
+    font-weight: 500;
+    max-width: 50%;
+}
+
+.public_topic p {
+    font-size: 12px;
+    font-weight: 300;
+}
+
+.public_topic_owner{
+    color: #33333378;
+    display: flex;
+    align-items: start;
+    gap: 4px;
+    max-width: 60%;
+}
+
+.public_topic_desc{
+    font-size: 12px;
+    margin-bottom: 12px;
+    font-style: italic;
+}
+
+.save_public_collection_btn{
+    stroke-width: 2px;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    transition: width 0.5s ease;
+}
+
+.save_public_collection_btn:hover{
+    color:#333;
+    transition: color 0.2s ease;
+}
+
+/* display */
+.public_display{
+    padding: 60px 0 60px 0;
+    min-height: 1000px;
+  background: linear-gradient(rgba(36, 106, 164, 0.724), white, white, white, white, white, white, rgba(36, 106, 164, 0.788) );
+
+}
+.public_display_list{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    margin-top: 30px;
+    gap: 40px;
+    row-gap: 40px;
+}
+
+.public_display_header{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 0 100px;
+    margin-bottom: 10px;
+}
+
+.public_display_header_left{
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+.public_display_header_right{
+    display: flex;
+    gap: 5px;
+}
+.back_to_your_collections_btn{
+    font-size: 24px;
+    font-weight: 700;
+    color: #c7d2fe90;
+    white-space: nowrap;
+    margin-left: 5px;
+    align-items: center;
+    height: 100%;
+    cursor: pointer;
+}
+.back_to_your_collections_btn:hover{
+    transition: color 0.2s ease;
+    color: #333;
+}
+.public_display_list_container{
+    padding: 0 100px 20px 100px;
+    width: 100%;
+
+}
+
+.skeleton {
+    height: 10px;
+    border-radius: 4px;
+    margin: 6px 0;
+    position: relative;
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+/* thanh loading chạy */
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.6),
+        transparent
+    );
+    animation: loading 1.2s infinite;
+}
+
+.skeleton.short {
+    width: 60%;
+}
+
+.skeleton.blox{
+    width:200px;
+	height:100px;
+    margin: 0px auto;
+    border-radius:12px;
+}
+
+@keyframes loading {
+    100% {
+        left: 100%;
+    }
+}
+
+.loader {
+    margin: 30px auto;
+    border: 6px solid #eee;
+    border-top: 6px solid #2b7bff;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}

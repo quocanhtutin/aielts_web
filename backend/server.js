@@ -10,6 +10,9 @@ import exerciseRouter from "./routes/exerciseRoute.js";
 import contactRouter from "./routes/contactRoute.js";
 import paymentRouter from "./routes/paymentRoute.js";
 import ollamaRouter from "./routes/ollamaRoute.js";
+import newWordRouter from "./routes/newWordsRoute.js";
+import uploadRouter from "./routes/uploadRoute.js";
+import testRouter from "./routes/testRoute.js";
 
 (async () => {
     const result = await cloudinary.api.ping();
@@ -38,6 +41,9 @@ app.use("/api/exercise", exerciseRouter)
 app.use("/api/contactInfor", contactRouter)
 app.use("/api/payment", paymentRouter)
 app.use("/api/model", ollamaRouter)
+app.use("/api/flashcard", newWordRouter)
+app.use("/api/upload", uploadRouter)
+app.use("/api/test", testRouter)
 
 app.get("/", (req, res) => {
     res.send("API Working")

@@ -1,0 +1,15 @@
+.auto-textarea{
+    width: 100%;
+    overflow: hidden;  
+    resize: none;
+    padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 14px;
+	height: 37px ;
+}
+
+.auto-textarea:focus{
+    border-color: #2563eb;
+    outline: none;
+}

@@ -2,12 +2,19 @@ import React, { useState } from 'react';
 import './SearchBar.css'
 
 const SearchBar = ({ onSearch }) => {
+    var internal = null
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleChange = (event) => {
         setSearchTerm(event.target.value);
         // If you want immediate search, call onSearch here:
         // onSearch(event.target.value);
+        clearTimeout(internal)
+
+        internal = setTimeout(()=>{
+            setSearchTerm(event.target.value);
+            onSearch(event.target.value)
+        }, 300)
     };
 
     const handleSubmit = (event) => {
@@ -24,7 +31,6 @@ const SearchBar = ({ onSearch }) => {
                     value={searchTerm}
                     onChange={handleChange}
                 />
-                <button className='search-btn' type="submit">Search</button>
             </form>
         </div>
     );

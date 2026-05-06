@@ -18,6 +18,22 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.camlib-title {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.camlib-title span {
+  color: #0ea5a4;
+}
+
+.camlib-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import SearchBar from '../../components/SearchBar/SearchBar';
 import CourseItem from '../../components/CourseItem/CourseItem';
 import './Course.css'
@@ -9,7 +9,7 @@ import Footer from '../../components/Footer/Footer';
 const Course = () => {
     const { activeCourses } = useContext(StoreContext)
     const navigate = useNavigate()
-    const [filteredItems, setFilteredItems] = useState(activeCourses);
+    const [filteredItems, setFilteredItems] = useState([]);
 
     const handleSearch = (searchTerm) => {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -18,11 +18,31 @@ const Course = () => {
         );
         setFilteredItems(newFilteredItems);
     };
+
+    useEffect(() => {
+        if (activeCourses.length > 0){
+            setFilteredItems(activeCourses)
+        }
+        else{
+            setFilteredItems(Array(6).fill({isLoading:true}))
+        }
+    }, [])
+
     return (
-        <div>
+        <div className='courses_display_container'>
+            <h1 className="camlib-title">
+            Các khóa học <span>IELTS 4 Kỹ Năng</span>
+            </h1>
+
+            <p className="camlib-subtitle">
+            Kho các khóa học bổ trợ kiến thức cơ bản và nâng cao cho từng kỹ năng
+            </p>
             <div className='courses-container'>
-                <SearchBar className="search-bar" onSearch={handleSearch} />
-                <h2>Khóa học</h2>
+                <div className="courses-container-header">
+                    <h2>Khóa học</h2>
+                    <SearchBar className="search-bar" onSearch={handleSearch} />
+                </div>
+            
                 <div className='course-display-list'>
                     {filteredItems.map((item, index) => {
                         return (
@@ -35,6 +55,7 @@ const Course = () => {
                                 image={item.image}
                                 onClickMore={(id) => navigate(`/course/${id}`)}
                                 isActive={item.isActive}
+                                isLoading={item.isLoading}
                             />
                         )
                     })}

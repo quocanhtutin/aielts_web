@@ -21,6 +21,7 @@ const CourseDisplay = ({ courses, nav, deactivateCourse, activateCourse }) => {
                             isActive={item.isActive}
                             deactivateCourse={deactivateCourse}
                             activateCourse={activateCourse}
+                            isLoading={item.isLoading}
                         />
                     )
                 })}

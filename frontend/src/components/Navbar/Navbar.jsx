@@ -38,14 +38,14 @@ const Navbar = ({ setShowLogin }) => {
     // Xác định route hiện tại để gắn class active
     const path = location.pathname;
 
-    const isActive = (pattern) => path === pattern;
+    const isActive = (pattern) => path.includes(pattern);
 
     return (
         <div className={scrolled ? "navbarcom scrolled" : "navbarcom"}>
             <h1 onClick={() => navigate("/")}>AIELTS</h1>
 
             <ul className="navbar-menu">
-                <Link to="/" className={isActive("/") ? "active" : ""}>
+                <Link to="/" className={path==="/" ? "active" : ""}>
                     Trang chủ
                 </Link>
 
@@ -68,6 +68,14 @@ const Navbar = ({ setShowLogin }) => {
                             </div>
                         </div>
                         <Link className={isActive("/admin/contactInformation") ? "active" : ""} to="/admin/contactInformation">Liên hệ</Link>
+                        <Link 
+                            to="/admin/flashcardmanagement/69c61effc6f90d412cee3f9d" className={isActive("/admin/flashcardmanagement") ? "active" : ""}
+                        >
+                            Flashcard
+                        </Link>
+                        <Link to="/admin/testmanagement" className={isActive("/admin/testmanagement") ? "active" : ""}>
+                            Cambridge
+                        </Link>
                     </>
                 )
                     :
@@ -78,6 +86,15 @@ const Navbar = ({ setShowLogin }) => {
                                 className={isActive("/courses") ? "active" : ""}
                             >
                                 Khóa học
+                            </Link>
+                            <Link 
+                                to={userRole==="user"?"/user/mynewwordsboard":"/publiccollection"} 
+                                className={isActive("/user/mynewwordsboard")||isActive("/publiccollection")||isActive("/user/flashcards")?"active":""}
+                            >
+                                Flashcard
+                            </Link>
+                            <Link to="/cambridgelibrary" className={isActive("/cambridgelibrary") ? "active" : ""}>
+                                Cambridge
                             </Link>
                             <a href="#footer">Liên hệ</a>
                         </>

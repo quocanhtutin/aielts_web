@@ -11,6 +11,11 @@
     border: 2px solid rgb(36, 106, 164);
 }
 
+.search-input:focus{
+    outline: none;
+    border: 2px solid rgb(36, 106, 164);
+}
+
 .search-btn{
     padding: 7px 12px;
     border-radius: 50px;
