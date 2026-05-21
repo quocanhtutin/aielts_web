@@ -35,6 +35,22 @@
   outline: none;
 }
 
+.ls-input.input-correct {
+  border: 2px solid #059669 !important;
+  background: #f0fdf4;
+}
+
+.ls-input.input-wrong {
+  border: 2px solid #ef4444 !important;
+  background: #fff5f5;
+}
+
+.correct-answer {
+  color: #ef4444;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
 .ls-table table {
   width: 100%;
   border-collapse: collapse;
@@ -213,4 +229,34 @@
 .ls-option.selected {
   border: 2px solid #059669;
   background: #f0fdf4;
+}
+
+.ls-option.option-correct {
+  border: 2px solid #059669 !important;
+  background: #f0fdf4;
+}
+
+.ls-option.option-wrong {
+  border: 2px solid #ef4444 !important;
+  background: #fff5f5;
+}
+
+.ls-option.option-correct-highlight {
+  border: 2px solid #ef4444 !important;
+  background: #fff5f5;
+}
+
+.ls-select.input-correct {
+  border: 2px solid #059669 !important;
+}
+
+.ls-select.input-wrong {
+  border: 2px solid #ef4444 !important;
+}
+
+.ls-option-item.correct-item {
+  color: #ef4444;
+  font-weight: 600;
+  border-left: 4px solid #ef4444;
+  padding-left: 8px;
 }

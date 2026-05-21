@@ -4,7 +4,7 @@ import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import './ListeningTestManagement.css'
-import { Pen, PenOff, FilePlusCorner, FileHeadphone, ScrollText, ChevronDown,ChevronUp, ALargeSmall, PlusCircle } from 'lucide-react'
+import { Pen, PenOff, FilePlusCorner, FileHeadphone, ScrollText, ChevronDown,ChevronUp, ALargeSmall, PlusCircle, Trash2 } from 'lucide-react'
 import ListeningRenderer from '../Testing/ListeningRenderer'
 import { NoteExercise, TableExercise, MCQExercise, MatchingExercise } from './ListenngAndReadingTypeManagement'
 import { col } from 'framer-motion/client'
@@ -126,6 +126,7 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
   const location = useLocation()
   const prevLocationRef = useRef(location.pathname)
   const prevTestCollectionRef = useRef(testCollection?._id)
+  const answerPopupRef = useRef(null)
 
   useEffect(() => {
     setSkillId(testCollection ? (collectionSkills.find(s => s?.type?.toLowerCase().includes('listening'))?._id) : null)
@@ -143,14 +144,26 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
   const deriveExercisesFromBlocks = (part) => {
     const blocks = Array.isArray(part?.blocks) ? part.blocks : []
     const exercises = []
+
     for (let i = 0; i < blocks.length; i++) {
       const b = blocks[i]
+
       if (!b || b.type !== 'instruction') continue
-      // parse questionRange like "Questions 1–5" or "Questions 1-5"
+
       let start = null
       let end = null
+
       if (typeof b.questionRange === 'string') {
-        const m = b.questionRange.match(/(\d+)\s*[–-]\s*(\d+)/)
+        // support:
+        // "Questions 1-5"
+        // "Question 1-5"
+        // "Questions 1–5"
+        // "Question 16-22"
+
+        const m = b.questionRange.match(
+          /question(?:s)?\s+(\d+)\D+(\d+)/i
+        )
+
         if (m) {
           start = Number(m[1])
           end = Number(m[2])
@@ -159,9 +172,14 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
 
       // next block may be image then exercise block
       let exerciseBlockIndex = i + 1
-      if (blocks[exerciseBlockIndex] && blocks[exerciseBlockIndex].type === 'image') {
+
+      if (
+        blocks[exerciseBlockIndex] &&
+        blocks[exerciseBlockIndex].type === 'image'
+      ) {
         exerciseBlockIndex++
       }
+
       const exerciseBlock = blocks[exerciseBlockIndex]
       const type = exerciseBlock?.type || 'note'
 
@@ -173,9 +191,9 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
         note: b.note || ''
       })
 
-      console.log(exercises);
-      
+      console.log(exercises)
     }
+
     return exercises
   }
 
@@ -184,10 +202,8 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     return partsArr.map(p => ({ ...(p || {}), exercises: (Array.isArray(p?.exercises) && p.exercises.length) ? p.exercises : deriveExercisesFromBlocks(p) }))
   }
 
-  useEffect(() => {
-    if (skillId) {
-      // fetch existing skill data
-      const fetchSkill = async () => {
+  // fetch existing skill data
+  const fetchSkill = async () => {
         try {
           const res = await axios.get(`${url}/api/test/skills/${skillId}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -199,16 +215,18 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
             setTitle(skill.title || '')
             setDescription(skill.description || '')
             setDuration(skill.duration || 30)
-              const loadedParts = derivePartsWithExercises(skill.parts || [])
-              setParts(loadedParts)
-              // compute sensible defaults for adding the next part based on loaded parts
-              const lastPart = (Array.isArray(loadedParts) && loadedParts.length) ? loadedParts[loadedParts.length - 1] : null
-              const nextPartNum = lastPart && lastPart.part ? (Number(lastPart.part) + 1) : 1
-              const nextStartQ = lastPart && (lastPart.endQuestion || lastPart.endQuestion === 0) ? (Number(lastPart.endQuestion) + 1) : 1
-              const nextEndQ = Number(nextStartQ) + 3
-              setPartNumber(nextPartNum)
-              setStartQuestion(nextStartQ)
-              setEndQuestion(nextEndQ)
+
+            const loadedParts = derivePartsWithExercises(skill.parts || [])
+            setParts(loadedParts)
+            console.log('Loaded skill parts with exercises:', loadedParts)
+            // compute sensible defaults for adding the next part based on loaded parts
+            const lastPart = (Array.isArray(loadedParts) && loadedParts.length) ? loadedParts[loadedParts.length - 1] : null
+            const nextPartNum = lastPart && lastPart.part ? (Number(lastPart.part) + 1) : 1
+            const nextStartQ = lastPart && (lastPart.endQuestion || lastPart.endQuestion === 0) ? (Number(lastPart.endQuestion) + 1) : 1
+            const nextEndQ = Number(nextStartQ) + 3
+            setPartNumber(nextPartNum)
+            setStartQuestion(nextStartQ)
+            setEndQuestion(nextEndQ)
             setScriptPassage(null)
             setScriptText('')
             setScriptCollapsed(true)
@@ -220,6 +238,10 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
           toast.error('Failed to load skill data')
         }
       }
+
+  useEffect(() => {
+    if (skillId) {
+      
       fetchSkill()
     } else {
       // reset for new skill
@@ -463,6 +485,7 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     clearPartDirty(idx)
     // if creator was dirty and saving this part, clear creator dirty
     setCreatorDirty(false)
+
   }
 
   // Script editor states
@@ -471,6 +494,76 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
   const [scriptCollapsed, setScriptCollapsed] = useState(true)
   const [showScriptPopup, setShowScriptPopup] = useState(false)
   const [scriptEditingPartIndex, setScriptEditingPartIndex] = useState(null)
+  const [scriptSplitMode, setScriptSplitMode] = useState('line') // 'line' | 'sentence'
+  
+  const splitIntoSentences = (t) => {
+    if (!t) return []
+    const m = String(t).match(/[^\.\!\?]+[\.\!\?]+["']?|[^\.\!\?]+$/g)
+    if (!m) return [String(t).trim()]
+    return m.map(s => s.trim()).filter(Boolean)
+  }
+
+  const createPassageFromText = (text, mode = 'line') => {
+    const raw = (text || '')
+    const paragraphsRaw = raw.split(/\r?\n\s*\r?\n/)
+    const content = []
+    const paragraphs = []
+    let idx = 1
+
+    if (mode === 'line') {
+      // preserve explicit line breaks within each paragraph (keep trailing "\n" on items)
+      paragraphsRaw.forEach(par => {
+        const parIdx = []
+        if (typeof par !== 'string' || par.length === 0) return
+        const lines = par.split(/\r?\n/)
+        for (let i = 0; i < lines.length; i++) {
+          const txt = lines[i] || ''
+          const hasBreak = i < lines.length - 1
+          const out = (txt === '' ? '' : txt) + (hasBreak ? '\n' : '')
+          if (out.trim() === '') continue
+          content.push({ index: idx, text: out })
+          parIdx.push(idx)
+          idx++
+        }
+        if (parIdx.length) paragraphs.push(parIdx)
+      })
+    } else if (mode === 'sentence') {
+      // Split paragraph into physical lines first so explicit newlines become separate items.
+      // Then split each line into sentences. If a line had a following newline, append a
+      // trailing "\n" to the last sentence of that line so collapsed view can render a <br/>.
+      paragraphsRaw.forEach(par => {
+        const parIdx = []
+        if (typeof par !== 'string' || par.length === 0) return
+        const lines = par.split(/\r?\n/)
+        for (let li = 0; li < lines.length; li++) {
+          const line = lines[li] || ''
+          const hasLineBreak = li < lines.length - 1
+          if (line.trim() === '') {
+            // empty line inside a paragraph — skip
+            continue
+          }
+          const sents = splitIntoSentences(line)
+          for (let si = 0; si < sents.length; si++) {
+            let sText = sents[si] || ''
+            // if this is the last sentence on a line that had a line break, mark it
+            if (si === sents.length - 1 && hasLineBreak) sText = sText.trim() + '\n'
+            if (sText.trim() === '') continue
+            content.push({ index: idx, text: sText })
+            parIdx.push(idx)
+            idx++
+          }
+        }
+        if (parIdx.length) paragraphs.push(parIdx)
+      })
+    }
+
+    if (content.length === 0 && raw.trim() !== '') {
+      content.push({ index: 1, text: raw.trim() })
+      paragraphs.push([1])
+    }
+
+    return { title: '', raw, content, paragraphs }
+  }
   
   // Answer key popup states
   const [showAnswerPopup, setShowAnswerPopup] = useState(false)
@@ -509,7 +602,7 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     form.append('file', file)
     try {
       const res = await axios.post(`${url}/api/upload`, form, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } })
-      return res.data
+      return res.data.data
     } catch (err) {
       // rethrow for caller to handle
       throw err
@@ -521,8 +614,7 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     try {
       toast.info('Uploading audio...')
       const data = await uploadToServer(file)
-      const audioUrl = data?.url || data
-      setParts(prev => prev.map((p, i) => i === idx ? ({ ...p, audio: { ...(p.audio || {}), url: audioUrl, public_id: data?.public_id } }) : p))
+      setParts(prev => prev.map((p, i) => i === idx ? ({ ...p, audio: data }) : p))
       markPartDirty(idx)
       toast.success('Audio uploaded')
     } catch (e) {
@@ -530,6 +622,39 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
       toast.error('Audio upload failed')
     }
   }
+
+  const handlePartPdfChange = async (idx, file) => {
+      if (!file) return
+      try {
+        toast.info('Uploading PDF...')
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        formData.append("testSkillId", skillId);
+        formData.append("part", parts[idx]?.part || idx + 1);
+        formData.append("startQuestion", parts[idx]?.startQuestion || 1);
+        formData.append("endQuestion", parts[idx]?.endQuestion || 13);
+        formData.append("type", "listening");
+
+        await axios.post(
+          `${url}/api/test/import-part`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              "Authorization": `Bearer ${token}`
+            }
+          }
+        );
+
+        await fetchSkill() // refresh data after import
+        toast.success('PDF uploaded')
+      } catch (e) {
+        console.error(e)
+        toast.error('PDF upload failed')
+      }
+    }
 
   const buildBlockFromForm = () => {
     switch (blockType) {
@@ -569,12 +694,8 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
 
   // Save script textarea into a passage object (title ignored)
   const handleSaveScript = () => {
-    const lines = scriptText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '')
-    const content = lines.map((t, i) => ({ index: i + 1, text: t }))
-    const passage = { title: '', content }
+    const passage = createPassageFromText(scriptText, scriptSplitMode)
 
-    // attach passage to the part being edited via the script popup (preferred),
-    // otherwise fall back to selectedPartIndex, otherwise keep a global scriptPassage
     if (scriptEditingPartIndex !== null && typeof scriptEditingPartIndex === 'number') {
       setParts(prev => prev.map((p, idx) => idx === scriptEditingPartIndex ? ({ ...p, passage }) : p))
       markPartDirty(scriptEditingPartIndex)
@@ -586,7 +707,6 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     }
 
     console.log('Script saved:', JSON.stringify(passage, null, 2))
-
     setScriptCollapsed(true)
     toast.success('Script saved')
   }
@@ -666,19 +786,108 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     return () => window.removeEventListener('keydown', onKey)
   }, [showAnswerPopup, answerListDraft.length])
 
+  // When active answer index changes inside the answer popup, focus the corresponding input.
+  useEffect(() => {
+    if (!showAnswerPopup) return
+    if (typeof answerActiveIndex !== 'number') return
+    try {
+      const root = answerPopupRef.current
+      if (!root) return
+      const selector = `input[data-answer-input-index="${answerActiveIndex}"]`
+      const el = root.querySelector(selector)
+      if (el && typeof el.focus === 'function') {
+        el.focus()
+        // move caret to end
+        try {
+          const len = (el.value || '').length
+          el.setSelectionRange(len, len)
+        } catch (err) {
+          // ignore if not supported
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, [answerActiveIndex, showAnswerPopup])
+
   const handleScriptLineClick = (index, text) => {
     // for now just log; can be extended to support explanation UI
     console.log('script-line', index, text)
   }
 
-  const scriptContent = (() => {
-    // priority: currently editing part (popup), then global scriptPassage, then selectedPartIndex
-    if (scriptEditingPartIndex !== null && parts[scriptEditingPartIndex]?.passage?.content) return parts[scriptEditingPartIndex].passage.content
-    if (scriptPassage?.content) return scriptPassage.content
-    if (selectedPartIndex !== null && parts[selectedPartIndex]?.passage?.content) return parts[selectedPartIndex].passage.content
-    const lines = scriptText.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
-    return lines.map((t, i) => ({ index: i + 1, text: t }))
+  const currentPassage = (() => {
+    if (scriptEditingPartIndex !== null && parts[scriptEditingPartIndex]?.passage) return parts[scriptEditingPartIndex].passage
+    if (scriptPassage) return scriptPassage
+    if (selectedPartIndex !== null && parts[selectedPartIndex]?.passage) return parts[selectedPartIndex].passage
+    return createPassageFromText(scriptText, scriptSplitMode)
   })()
+
+  const scriptContentCount = Array.isArray(currentPassage?.content) ? currentPassage.content.length : 0
+
+  const renderPassageDisplay = (passage, { highlightIndices = [], onItemClick = null, collapsed = false } = {}) => {
+    const content = Array.isArray(passage?.content) ? passage.content : []
+    const paragraphs = (collapsed
+      ? (content.length ? [content.map(c => c.index)] : [])
+      : (Array.isArray(passage?.paragraphs) && passage.paragraphs.length ? passage.paragraphs : (content.length ? [content.map(c => c.index)] : []))
+    )
+    const contentMap = {}
+    content.forEach(c => { contentMap[c.index] = c.text })
+
+    return (
+      <div>
+        {paragraphs.map((para, pIdx) => (
+          <div key={'para-' + pIdx} className="ltm_script_paragraph" style={{ marginBottom: 12, lineHeight: 1.7 }}>
+            {para.map((ci, i) => {
+              const rawText = contentMap[ci] || ''
+              // collapsed view: render continuous paragraph — items joined, only break where original had explicit newline
+              if (collapsed) {
+                const isActive = Array.isArray(highlightIndices) && highlightIndices.includes(ci)
+                const segments = String(rawText || '').split(/\r?\n/)
+                return (
+                  <React.Fragment key={ci}>
+                    {segments.map((seg, sidx) => (
+                      <React.Fragment key={`${ci}-${sidx}`}>
+                        {seg !== '' && (
+                          <span
+                            className={`ltm_script_sentence ${isActive ? 'active' : ''}`}
+                            onClick={() => onItemClick && onItemClick(ci, seg)}
+                            style={{ display: 'inline' }}
+                          >
+                            {seg}
+                          </span>
+                        )}
+                        {sidx < segments.length - 1 ? <br /> : (i < para.length - 1 ? ' ' : '')}
+                      </React.Fragment>
+                    ))}
+                  </React.Fragment>
+                )
+              }
+
+              // non-collapsed (editing / preview) behaviour — keep previous rendering logic
+              const text = rawText
+              if (scriptSplitMode === 'line') {
+                const sents = splitIntoSentences(text)
+                return (
+                  <span key={`${ci}-${i}`} style={{ display: 'inline-block' }}>
+                    {sents.map((s, si) => (
+                      <span key={`${ci}-${si}`} className="ltm_script_sentence" onClick={() => onItemClick && onItemClick(ci, s)}>{s}{si < sents.length - 1 ? ' ' : ''}</span>
+                    ))}
+                    <br />
+                  </span>
+                )
+              }
+              const isActive = Array.isArray(highlightIndices) && highlightIndices.includes(ci)
+              return (
+                <span key={ci} className="ltm_script_sentence" onClick={() => onItemClick && onItemClick(ci, text)} style={{ backgroundColor: isActive ? '#fff2a8' : 'transparent', padding: '2px 4px', borderRadius: 4, marginRight: 6 }}>
+                  {text}{' '}
+                </span>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   const createTest = async () => {
     if (!title.trim()) {
@@ -705,6 +914,7 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
   const handleSaveOrCreate = () => {
     if (skillId) updateTest()
     else createTest()
+    fetchSkill() // refresh data after save/create
   }
 
   const updateTest = () => {
@@ -789,25 +999,25 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
   }, [creatorDirty, dirtyParts])
 
   // intercept client-side navigation (route changes)
-  useEffect(() => {
-    if (prevLocationRef.current && prevLocationRef.current !== location.pathname) {
-      if (creatorDirty || Object.keys(dirtyParts).length > 0) {
-        const saveFirst = window.confirm('You have unsaved changes. Click OK to save and continue, or Cancel to choose other options.')
-        if (saveFirst) {
-          handleSaveOrCreate()
-        } else {
-          const discard = window.confirm('Discard unsaved changes and continue? Click OK to discard, Cancel to stay.')
-          if (discard) {
-            setCreatorDirty(false)
-            setDirtyParts({})
-          } else {
-            navigate(prevLocationRef.current)
-          }
-        }
-      }
-    }
-    prevLocationRef.current = location.pathname
-  }, [location.pathname])
+  // useEffect(() => {
+  //   if (prevLocationRef.current && prevLocationRef.current !== location.pathname) {
+  //     if (creatorDirty || Object.keys(dirtyParts).length > 0) {
+  //       const saveFirst = window.confirm('You have unsaved changes. Click OK to save and continue, or Cancel to choose other options.')
+  //       if (saveFirst) {
+  //         handleSaveOrCreate()
+  //       } else {
+  //         const discard = window.confirm('Discard unsaved changes and continue? Click OK to discard, Cancel to stay.')
+  //         if (discard) {
+  //           setCreatorDirty(false)
+  //           setDirtyParts({})
+  //         } else {
+  //           navigate(prevLocationRef.current)
+  //         }
+  //       }
+  //     }
+  //   }
+  //   prevLocationRef.current = location.pathname
+  // }, [location.pathname])
 
   // detect switching testCollection (parent changed selection)
   useEffect(() => {
@@ -837,6 +1047,15 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
     if (isNaN(v)) v = Number(startQuestion) + 3
     if (v < Number(startQuestion)) v = Number(startQuestion)
     setEndQuestion(v)
+  }
+
+  const handleDeletePart = async (id) => {
+    if (confirm('Are you sure you want to delete this part? This action cannot be undone.')) {
+      await axios.delete(`${url}/api/test/skills/${skillId}/parts/${id}`, { headers: {
+        'Authorization': `Bearer ${token}`
+      } })
+      setParts(prev => prev.filter(p => p._id !== id))
+    }
   }
 
   return (
@@ -869,14 +1088,16 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
                 <div className="ltm_part_header_right" style={{ display: 'flex', gap: "12px", alignItems: 'center' }}>
                   <div className="ltm_header_field ltm_add_audio">
                     <label>Audio</label>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <label htmlFor={`add_audio_file_${idx}`} style={{ cursor: 'pointer' }}>
-                        <FileHeadphone size={18} />
-                      </label>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {!p.audio?.url && (
+                        <label htmlFor={`add_audio_file_${idx}`} style={{ cursor: 'pointer' }}>
+                          <FilePlusCorner size={18} />
+                        </label>
+                      )}
                       <input hidden id={`add_audio_file_${idx}`} className="ltm_input ltm_file_input" type="file" accept="audio/*" onChange={(e) => handlePartAudioChange(idx, e.target.files[0])} />
                       {p.audio?.url && (
                         <>
-                          <audio controls src={p.audio.url} style={{ maxWidth: 220 }} />
+                          <audio controls src={p.audio.url} style={{ maxWidth: 220, width: '150px' }} />
                           <button className="ltm_btn" onClick={() => document.getElementById(`add_audio_file_${idx}`)?.click()}>Update</button>
                         </>
                       )}
@@ -888,7 +1109,12 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
                       // open script popup for this part (do not change selectedPartIndex)
                       const partPassage = parts[idx]?.passage
                       setScriptEditingPartIndex(idx)
-                      setScriptText(partPassage ? partPassage.content.map(c => c.text).join('\n') : '')
+                      setScriptText(partPassage ? (partPassage.raw || partPassage.content.map(c => c.text).join(" ")) : '')
+                      // attempt to infer saved split mode from saved passage (prefer line if any item has trailing newline)
+                      if (partPassage) {
+                        const anyLineBreakItem = Array.isArray(partPassage.content) && partPassage.content.some(ci => String(ci.text || '').endsWith('\n'))
+                        setScriptSplitMode(anyLineBreakItem ? 'line' : 'sentence')
+                      }
                       setScriptCollapsed(!!partPassage)
                       setShowScriptPopup(true)
                     }}
@@ -918,6 +1144,19 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
                     <label>Answer Key</label>
                     <ALargeSmall size={18} />
                   </div>
+                  {!p._id&&(
+                   <div className="ltm_header_field ltm_add_audio">
+                    <label>File PDF</label>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <label htmlFor={`add_pdf_file_${idx}`} style={{ cursor: 'pointer' }}>
+                        <FilePlusCorner size={18} />
+                      </label>
+                      <input hidden id={`add_pdf_file_${idx}`} className="ltm_input ltm_file_input" type="file" accept="application/pdf" onChange={(e) => handlePartPdfChange(idx, e.target.files[0])} />
+                    </div>
+                   </div>)}
+                   {p._id && (
+                     <Trash2 size={18} style={{ cursor: 'pointer', color: '#ff6b6b' }} onClick={() => handleDeletePart(p._id)} />
+                   )}
                   <button className="ltm_btn ltm_primary" onClick={() => handleSavePart(idx)}>Save Part</button>
                 </div>
               </div>
@@ -1083,20 +1322,26 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
 
       <div className={`ltm_script_popup ${showScriptPopup ? 'ltm_open' : ''}`}>
         <div className="ltm_script_popup_header">
-          <h4>Script ({scriptContent.length} lines)</h4>
-          {!scriptCollapsed ? <button className="ltm_btn ltm_primary" onClick={handleSaveScript}>Save Script</button> : <button className="ltm_btn" onClick={() => setScriptCollapsed(false)}>Edit</button>}
+          <h4>Script ({scriptContentCount} items)</h4>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {!scriptCollapsed && (
+              <div className="ltm_split_mode">
+                <button className={`ltm_btn ${scriptSplitMode === 'line' ? 'ltm_primary' : ''}`} onClick={() => setScriptSplitMode('line')}>Theo dòng</button>
+                <button className={`ltm_btn ${scriptSplitMode === 'sentence' ? 'ltm_primary' : ''}`} onClick={() => setScriptSplitMode('sentence')}>Theo câu</button>
+              </div>
+            )}
+            {!scriptCollapsed ? <button className="ltm_btn ltm_primary" onClick={handleSaveScript}>Save Script</button> : <button className="ltm_btn" onClick={() => setScriptCollapsed(false)}>Edit</button>}
+          </div>
         </div>
         <div className="ltm_script_popup_body">
           {!scriptCollapsed ? (
-          <div>
-            <textarea className="ltm_script_textarea" value={scriptText} onChange={(e) => setScriptText(e.target.value)} placeholder="Paste script lines, one per line" />
-            <div className="ltm_script_actions">
-              <button className="ltm_btn" onClick={() => setScriptText('')}>Clear</button>
+            <div>
+              <textarea className="ltm_script_textarea" value={scriptText} onChange={(e) => setScriptText(e.target.value)} placeholder="Paste script lines, one per line or paste full passage" />
+              <div className="ltm_script_actions">
+                <button className="ltm_btn" onClick={() => setScriptText('')}>Clear</button>
+              </div>
             </div>
-          </div>
-        ) : scriptContent.map(line => (
-            <div key={line.index} className="ltm_script_line" onClick={() => handleScriptLineClick(line.index, line.text)}>{line.text}</div>
-          ))}
+          ) : renderPassageDisplay(currentPassage, { onItemClick: handleScriptLineClick, collapsed: true })}
           {}
         </div>
         <div className="ltm_script_popup_footer">
@@ -1107,7 +1352,7 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
       {/* Answer key popup (two-pane): left = answer list, right = non-editable script lines for that part */}
       {showAnswerPopup && (
         <div className={`ltm_answer_popup ltm_open`} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '58%', background: '#fff',  zIndex: 2200, display: 'flex', height: '100%' }}>
-          <div style={{  borderLeft: '1px solid #eee',  position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div ref={answerPopupRef} style={{  borderLeft: '1px solid #eee',  position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', flex: 1 }}>
             <div className="ltm_script_popup_header">
               <h4 style={{ margin: 0 }}>Answer Key (Part {answerEditingPartIndex != null ? parts[answerEditingPartIndex]?.part : ''})</h4>
               <button className="ltm_btn ltm_primary" onClick={handleSaveAnswerList}>Save</button>
@@ -1116,9 +1361,9 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
             <div className="ltm_script_popup_body">
               {answerListDraft.map((ans, i) => (
                 <div key={ans.q} onClick={() => setAnswerActiveIndex(i)} style={{ padding: 8, borderRadius: 6, background: answerActiveIndex === i ? '#eef6ff' : '#fff', marginBottom: 8, border: '1px solid #f1f5f9' }}>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ width: 30, fontWeight: 600 }}>{ans.q}.</div>
-                    <input autoFocus={answerActiveIndex === i ? true : false} className="ltm_input" placeholder="Answer" style={{ flex: 1, maxWidth: '170px' }} value={ans.answer || ''} onChange={e => handleAnswerFieldChange(i, 'answer', e.target.value)} />
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <div style={{ width: 30, fontWeight: 600 }}>{ans.q}.</div>
+                      <input data-answer-input-index={i} autoFocus={answerActiveIndex === i ? true : false} className="ltm_input" placeholder="Answer" style={{ flex: 1, maxWidth: '170px' }} value={ans.answer || ''} onChange={e => handleAnswerFieldChange(i, 'answer', e.target.value)} />
                     <input className="ltm_input" placeholder="Refs (e.g. 1,3,5)" style={{ width: 140 }} value={Array.isArray(ans.explanation?.refs) ? ans.explanation.refs.join(', ') : ''} onChange={e => handleAnswerFieldChange(i, 'refs', e.target.value)} />
                     <div style={{ cursor: 'pointer' }} title="Add Explanation Text"><PlusCircle size={18} onClick={(ev) => { ev.stopPropagation(); setAnswerActiveIndex(i); setOpenExplanationIndex(openExplanationIndex === i ? null : i); }} /></div>
                   </div>
@@ -1147,12 +1392,9 @@ const ListeningTestManagement = ({ testCollection, setSidebarData, collectionSki
                   <button className="ltm_btn" style={{ visibility: 'hidden' }} onClick={() => setScriptCollapsed(false)}>Edit</button>
                 </div>
                 <div className="ltm_script_popup_body">
-                  {partPassage.content.map(line => (
-                      <div key={line.index} className="ltm_script_line" onClick={() => handleToggleScriptLineForActive(line.index)} style={{ cursor: 'pointer', background: activeRefs.includes(line.index) ? '#fff2a8' : 'transparent' }}>{line.text}</div>
-                  ))}
-                </div>
+                      {renderPassageDisplay(partPassage, { highlightIndices: activeRefs, onItemClick: (ci) => handleToggleScriptLineForActive(ci), collapsed: true })}
+                    </div>
                 <div className="ltm_script_popup_footer">
-                  <button className="ltm_btn" onClick={() => { setShowScriptPopup(false); setScriptCollapsed(true); setScriptEditingPartIndex(null); }}>Close</button>
                 </div>
               </div>
               )

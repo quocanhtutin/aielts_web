@@ -7,7 +7,7 @@
 
 .ltm_listening_manage{
 	width: 100%;
-	max-height: 487px;
+	max-height: 424px;
 	background: #fff;
 	border-radius: 8px;
 	overflow: hidden;
@@ -120,7 +120,15 @@
 
 /* Script editor + popup */
 .ltm_script_editor{ margin: 12px 0; padding: 10px; border-radius: 8px; border: 1px dashed var(--ltm-border); background: #fffefc }
-.ltm_script_textarea{ width:100%; min-height:110px; padding:10px 12px; border-radius:6px; border:1px solid var(--ltm-border); resize:vertical }
+.ltm_script_textarea{ 
+	width:100%; 
+	min-height:450px; 
+	height:70%;
+	padding:10px 12px; 
+	border-radius:6px; 
+	border:1px solid var(--ltm-border); 
+	resize:vertical 
+}
 .ltm_script_actions{ margin-top:8px; display:flex; gap:8px }
 .ltm_script_collapsed{ display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#fbfdff; border-radius:6px; border:1px solid var(--ltm-border) }
 .ltm_script_collapsed_actions{ display:flex; gap:8px }
@@ -148,7 +156,9 @@
 .ltm_script_line{ padding:8px; border-radius:6px; margin-bottom:6px; cursor:pointer }
 .ltm_script_line:hover{ background: #fff3b0 }
 .ltm_script_popup_footer{ 
-	padding:12px; border-top:1px solid #eef2f7; text-align:right }
+	padding:12px; border-top:1px solid #eef2f7; text-align:right ;
+	min-height:58px;
+}
 
 /* Exercise creator styles */
 .ltm_exercise_creator{ margin-top:12px }
@@ -182,7 +192,7 @@
 
 .ltm_listening_container{
 	padding: 16px;
-	max-height: calc(486px - 54.67px);
+	max-height: calc(424px - 54.67px);
 	overflow: auto;
 }
 
@@ -209,6 +219,16 @@
 .ltm_add_audio:hover{
 	color: var(--ltm-primary);
 }
+
+/* Split mode buttons */
+.ltm_split_mode{ display:flex; gap:6px; align-items:center }
+.ltm_split_mode .ltm_btn{ padding:6px 8px; font-size:13px }
+
+/* Paragraph / sentence display */
+.ltm_script_paragraph{ margin-bottom:12px; white-space:normal }
+.ltm_script_sentence{ cursor:pointer; transition: background 0.12s ease; padding:2px 0px; border-radius:2px; display:inline-block }
+.ltm_script_sentence:hover{ background:#fff3b0 }
+.ltm_script_sentence.active{ background: #fff2a8 }
 
 .ltm_part_header_left{
 	display: flex;

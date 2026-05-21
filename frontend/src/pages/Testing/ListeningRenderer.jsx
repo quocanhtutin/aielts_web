@@ -11,7 +11,7 @@ const Instruction = ({ questionRange, title, note }) => {
   );
 };
 
-const NoteBlock = ({ block, answers, onChange }) => {
+const NoteBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
   return (
     <div className="ls-note-block">
       <h3>{block.heading}</h3>
@@ -22,15 +22,24 @@ const NoteBlock = ({ block, answers, onChange }) => {
             if (typeof c === "string") return <span key={idx}>{c} </span>;
 
             if (typeof c === "object" && c.q) {
+              const qid = c.q;
+              const expected = (answerKeyMap && answerKeyMap[qid]) || "";
+              const user = answers[qid] || "";
+              const normalize = (s = "") => (s || "").toString().trim().toLowerCase();
+              const isCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
+
               return (
                 <div key={idx} style={{ display: "inline" }} id={`q-${c.q}`}>
                     <p className="ls_question_number">{c.q}.</p>
                     <input
                         key={idx}
-                        className="ls-input"
+                        className={`ls-input ${isSubmitted && expected !== "" ? (isCorrect ? "input-correct" : "input-wrong") : ""}`}
                         value={answers[c.q] || ""}
                         onChange={(e) => onChange(c.q, e.target.value)}
                     />
+                    {isSubmitted && expected !== "" && !isCorrect && (
+                      <span className="correct-answer">{expected}</span>
+                    )}
                 </div>
               );
             }
@@ -43,8 +52,8 @@ const NoteBlock = ({ block, answers, onChange }) => {
   );
 };
 
-const TableBlock = ({ block, answers, onChange }) => {
-    const renderCellContent = (cell, answers, onChange) => {
+const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
+  const renderCellContent = (cell, answers, onChange) => {
         if (typeof cell === "string") return cell;
 
         if (Array.isArray(cell)) {
@@ -52,18 +61,26 @@ const TableBlock = ({ block, answers, onChange }) => {
                 if (typeof c === "string") return <span key={i}>{c} </span>;
 
                 if (typeof c === "object" && c.q) {
-                    return (
-                        <div key={i} style={{ display: "inline" }} id={`q-${c.q}`}>
-                            <p className="ls_question_number">{c.q}.</p>
-                            <input
-                                key={i}
-                                className="ls-input"
-                                value={answers[c.q] || ""}
-                                onChange={(e) => onChange(c.q, e.target.value)}
-                            />
-                        </div>
-                    
-                    );
+                  const qid = c.q;
+                  const expected = (answerKeyMap && answerKeyMap[qid]) || "";
+                  const user = answers[qid] || "";
+                  const normalize = (s = "") => (s || "").toString().trim().toLowerCase();
+                  const isCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
+
+                  return (
+                    <div key={i} style={{ display: "inline" }} id={`q-${c.q}`}>
+                      <p className="ls_question_number">{c.q}.</p>
+                      <input
+                        key={i}
+                        className={`ls-input ${isSubmitted && expected !== "" ? (isCorrect ? "input-correct" : "input-wrong") : ""}`}
+                        value={answers[c.q] || ""}
+                        onChange={(e) => onChange(c.q, e.target.value)}
+                      />
+                      {isSubmitted && expected !== "" && !isCorrect && (
+                        <span className="correct-answer">{expected}</span>
+                      )}
+                    </div>
+                  );
                 }
 
                 return null;
@@ -71,16 +88,25 @@ const TableBlock = ({ block, answers, onChange }) => {
         }
 
         if (typeof cell === "object" && cell.q) {
-            return (
-                <div style={{ display: "inline" }} id={`q-${cell.q}`}>
-                            <p className="ls_question_number">{cell.q}.</p>
-                            <input
-                                className="ls-input"
-                                value={answers[cell.q] || ""}
-                                onChange={(e) => onChange(cell.q, e.target.value)}
-                            />
-                        </div>
-            );
+          const qid = cell.q;
+          const expected = (answerKeyMap && answerKeyMap[qid]) || "";
+          const user = answers[qid] || "";
+          const normalize = (s = "") => (s || "").toString().trim().toLowerCase();
+          const isCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
+
+          return (
+            <div style={{ display: "inline" }} id={`q-${cell.q}`}>
+                  <p className="ls_question_number">{cell.q}.</p>
+                  <input
+                    className={`ls-input ${isSubmitted && expected !== "" ? (isCorrect ? "input-correct" : "input-wrong") : ""}`}
+                    value={answers[cell.q] || ""}
+                    onChange={(e) => onChange(cell.q, e.target.value)}
+                  />
+                  {isSubmitted && expected !== "" && !isCorrect && (
+                    <span className="correct-answer">{expected}</span>
+                  )}
+                </div>
+          );
         }
 
         return null;
@@ -113,11 +139,16 @@ const TableBlock = ({ block, answers, onChange }) => {
   );
 };
 
-const MCQBlock = ({ block, answers, onChange }) => {
+const MCQBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
   return (
     <div className="ls-mcq">
       {block.questions.map((q) => {
         const isImageMode = q.options?.[0]?.type === "image";
+
+        const expected = (answerKeyMap && answerKeyMap[q.q]) || "";
+        const user = answers[q.q] || "";
+        const normalize = (s = "") => (s || "").toString().trim().toLowerCase();
+        const userCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
 
         return (
           <div key={q.q} className="ls-mcq-item" id={`q-${q.q}`}>
@@ -130,32 +161,43 @@ const MCQBlock = ({ block, answers, onChange }) => {
                 isImageMode ? "image-mode" : ""
               }`}
             >
-              {q.options.map((opt) => (
-                <label
-                  key={opt.key}
-                  className={`ls-option ${
-                    answers[q.q] === opt.key ? "selected" : ""
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={`q-${q.q}`}
-                    value={opt.key}
-                    checked={answers[q.q] === opt.key}
-                    onChange={() => onChange(q.q, opt.key)}
-                  />
+              {q.options.map((opt) => {
+                let extra = "";
+                if (isSubmitted && expected !== "") {
+                  if (opt.key === expected) {
+                    // correct option
+                    extra = user === expected ? "option-correct" : "option-correct-highlight";
+                  } else if (opt.key === user && user !== expected) {
+                    // user's wrong choice
+                    extra = "option-wrong";
+                  }
+                }
 
-                  <div className="option-content">
-                    <div className="option-label">{opt.key}</div>
+                return (
+                  <label
+                    key={opt.key}
+                    className={`ls-option ${answers[q.q] === opt.key ? "selected" : ""} ${extra}`}
+                  >
+                    <input
+                      type="radio"
+                      name={`q-${q.q}`}
+                      value={opt.key}
+                      checked={answers[q.q] === opt.key}
+                      onChange={() => onChange(q.q, opt.key)}
+                    />
 
-                    {opt.type === "image" ? (
-                      <img src={opt.src.url} alt={opt.key} />
-                    ) : (
-                      <span>{opt.text}</span>
-                    )}
-                  </div>
-                </label>
-              ))}
+                    <div className="option-content">
+                      <div className="option-label">{opt.key}</div>
+
+                      {opt.type === "image" ? (
+                        <img src={opt.src.url} alt={opt.key} />
+                      ) : (
+                        <span>{opt.text}</span>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </div>
         );
@@ -164,7 +206,7 @@ const MCQBlock = ({ block, answers, onChange }) => {
   );
 };
 
-const MatchingBlock = ({ block, answers, onChange }) => {
+const MatchingBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
   const [openQ, setOpenQ] = useState(null);
   const wrapperRef = useRef();
 
@@ -183,18 +225,21 @@ const MatchingBlock = ({ block, answers, onChange }) => {
 
   // FILTER OPTIONS
   const getAvailableOptions = (currentQ) => {
+    // If duplicate allowed, all options remain available for every question in this block
     if (block.duplicate) return block.options;
 
-    const usedValues = Object.entries(answers)
-      .filter(([q, val]) => parseInt(q) !== currentQ && val)
-      .map(([_, val]) => val);
+    // Otherwise, only consider answers given to questions that belong to THIS block.
+    const questionIds = (block.questions || []).map((qq) => Number(qq.q));
 
-    return block.options.filter(
-      (opt) => !usedValues.includes(opt.key)
-    );
+    const usedValues = questionIds
+      .filter((qid) => qid !== Number(currentQ))
+      .map((qid) => answers[qid])
+      .filter((v) => v !== undefined && v !== null && v !== "");
+
+    return block.options.filter((opt) => !usedValues.includes(opt.key));
   };
 
-  return (
+    return (
     <div className="ls-matching" ref={wrapperRef}>
       {/* OPTIONS */}
       <div className="ls-match-options">
@@ -211,15 +256,20 @@ const MatchingBlock = ({ block, answers, onChange }) => {
           const selected = answers[q.q];
           const availableOptions = getAvailableOptions(q.q);
 
+          const expected = (answerKeyMap && answerKeyMap[q.q]) || "";
+          const user = answers[q.q] || "";
+          const normalize = (s = "") => (s || "").toString().trim().toLowerCase();
+          const isCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
+
           const isDisabled =
             !block.duplicate && availableOptions.length === 0 && !selected;
 
           return (
-            <div
-              key={q.q}
-              className="ls-match-item"
-              id={`q-${q.q}`}
-            >
+                <div
+                  key={q.q}
+                  className="ls-match-item"
+                  id={`q-${q.q}`}
+                >
               <span>
                 {q.q}. {q.label}
               </span>
@@ -227,13 +277,16 @@ const MatchingBlock = ({ block, answers, onChange }) => {
               <div className="ls-select-wrapper">
                 {/* SELECT BOX */}
                 <div
-                  className={`ls-select ${isDisabled ? "disabled" : ""}`}
+                  className={`ls-select ${isDisabled ? "disabled" : ""} ${isSubmitted && expected !== "" ? (isCorrect ? "input-correct" : "input-wrong") : ""}`}
                   onClick={() => {
                     if (isDisabled) return;
                     setOpenQ(openQ === q.q ? null : q.q);
                   }}
                 >
                   {selected || "--"}
+                  {isSubmitted && expected !== "" && !isCorrect && (
+                    <span className="correct-answer">{expected}</span>
+                  )}
                 </div>
 
                 {/* POPUP */}
@@ -251,7 +304,7 @@ const MatchingBlock = ({ block, answers, onChange }) => {
                     {availableOptions.map((opt) => (
                       <div
                         key={opt.key}
-                        className="ls-option-item"
+                        className={`ls-option-item ${isSubmitted && expected !== "" && opt.key === expected && user !== expected ? "correct-item" : ""}`}
                         onClick={() => {
                           onChange(q.q, opt.key);
                           setOpenQ(null);
@@ -271,19 +324,29 @@ const MatchingBlock = ({ block, answers, onChange }) => {
   );
 };
 
-const DiagramLabelBlock = ({ block, answers, onChange }) => {
+const DiagramLabelBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
   return (
     <div className="ls-diagram-label">
-      {block.questions.map((q) => (
-        <div key={q.q} className="ls-diagram-item" id={`q-${q.q}`}>
-          <span>{q.q}</span>
-          <input
-            className="ls-input"
-            value={answers[q.q] || ""}
-            onChange={(e) => onChange(q.q, e.target.value)}
-          />
-        </div>
-      ))}
+      {block.questions.map((q) => {
+        const expected = (answerKeyMap && answerKeyMap[q.q]) || "";
+        const user = answers[q.q] || "";
+        const normalize = (s = "") => (s || "").toString().trim().toLowerCase();
+        const isCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
+
+        return (
+          <div key={q.q} className="ls-diagram-item" id={`q-${q.q}`}>
+            <span>{q.q}</span>
+            <input
+              className={`ls-input ${isSubmitted && expected !== "" ? (isCorrect ? "input-correct" : "input-wrong") : ""}`}
+              value={answers[q.q] || ""}
+              onChange={(e) => onChange(q.q, e.target.value)}
+            />
+            {isSubmitted && expected !== "" && !isCorrect && (
+              <span className="correct-answer">{expected}</span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -291,12 +354,12 @@ const DiagramLabelBlock = ({ block, answers, onChange }) => {
 const ImageBlock = ({ src, alt }) => {
   return (
     <div className="ls-image">
-      <img src={src} alt={alt} />
+      <img src={src.url} alt={alt} />
     </div>
   );
 };
 
-const ListeningRenderer = ({ blocks, answers, onChange }) => {
+const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
   return (
     <div>
       {blocks.map((block, index) => {
@@ -311,6 +374,8 @@ const ListeningRenderer = ({ blocks, answers, onChange }) => {
                 block={block}
                 answers={answers}
                 onChange={onChange}
+                answerKeyMap={answerKeyMap}
+                isSubmitted={isSubmitted}
               />
             );
 
@@ -321,6 +386,8 @@ const ListeningRenderer = ({ blocks, answers, onChange }) => {
                 block={block}
                 answers={answers}
                 onChange={onChange}
+                answerKeyMap={answerKeyMap}
+                isSubmitted={isSubmitted}
               />
             );
 
@@ -331,6 +398,8 @@ const ListeningRenderer = ({ blocks, answers, onChange }) => {
                     block={block}
                     answers={answers}
                     onChange={onChange}
+                    answerKeyMap={answerKeyMap}
+                    isSubmitted={isSubmitted}
                 />
                 );
 
@@ -341,6 +410,8 @@ const ListeningRenderer = ({ blocks, answers, onChange }) => {
                     block={block}
                     answers={answers}
                     onChange={onChange}
+                    answerKeyMap={answerKeyMap}
+                    isSubmitted={isSubmitted}
                 />
                 );
 
@@ -351,6 +422,8 @@ const ListeningRenderer = ({ blocks, answers, onChange }) => {
                     block={block}
                     answers={answers}
                     onChange={onChange}
+                    answerKeyMap={answerKeyMap}
+                    isSubmitted={isSubmitted}
                     />
                 );
 

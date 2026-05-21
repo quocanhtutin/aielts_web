@@ -44,9 +44,9 @@ const App = () => {
           <Route path='/course/:id' element={<CourseDetail setShowLogin={setShowLogin} />} />
           <Route path='/publiccollection' element= {<PublicNewWordCollections setShowLogin={setShowLogin} />}/>
           <Route path='/cambridgelibrary' element={<CambridgeLibrary />} />
-          <Route path='/listeningtest' element={<ListeningTestPage />} />
-          <Route path='/readingtest' element={<ReadingTestPage />} />
-          <Route path='/writingtest' element={<WritingTestPage />} />
+          <Route path='/listeningtest/:id' element={<ListeningTestPage />} />
+          <Route path='/readingtest/:id' element={<ReadingTestPage />} />
+          <Route path='/writingtest/:id' element={<WritingTestPage />} />
           {userRole === "admin" && (
             <>
               <Route path='/admin/accountmanagement' element={<AccountManagement />} />

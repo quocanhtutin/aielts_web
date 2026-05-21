@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react'
 import './TestManagement.css'
 import ManagementSidebar from '../../components/ManagementSidebar/ManagementSidebar'
 import ListeningTestManagement from './ListeningTestManagement'
+import ReadingTestManagement from './ReadingTestManagement'
 import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -10,7 +11,7 @@ import { useParams } from 'react-router-dom'
 
 const TestManagement = () => {
   const { url, token } = useContext(StoreContext)
-    const { id } = useParams() // collection id from url
+  const { id } = useParams() // collection id from url
 
   const [sidebarData, setSidebarData] = useState([])
   const [selectedCollection, setSelectedCollection] = useState(null)
@@ -256,16 +257,25 @@ const TestManagement = () => {
 
           <div className='tm_skill_content'>
             {selectedCollection ? (
-              activeSkill === 'listening' ? (
+              <>
+              {activeSkill === 'listening' && (
                 <ListeningTestManagement 
                   testCollection={selectedCollection} 
                   setSidebarData={setSidebarData} 
                   collectionSkills={collectionSkills}
                   setCollectionSkills={setCollectionSkills}
-                />
-              ) : (
+                />)}
+              {activeSkill === 'reading' && (
+                <ReadingTestManagement 
+                  testCollection={selectedCollection}
+                  setSidebarData={setSidebarData} 
+                  collectionSkills={collectionSkills}
+                  setCollectionSkills={setCollectionSkills}
+                />)}
+              {activeSkill !== 'listening' && activeSkill !== 'reading' && (
                 <div style={{ padding: 20 }}><em>{activeSkill} management not implemented yet.</em></div>
-              )
+              )}
+              </>
             ) : (
               <div style={{ padding: 20 }}><em>Please select a collection from the left.</em></div>
             )}

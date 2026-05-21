@@ -173,8 +173,7 @@ const suggestWord = async (prompt, options = {}) => {
             {
                 model: "gpt-oss:20b-cloud",
                 prompt: prompt,          
-                stream: false,
-                // format: "json",          
+                stream: false,   
                 options: {
                     ...options
                 }

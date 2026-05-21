@@ -73,7 +73,7 @@ const Navbar = ({ setShowLogin }) => {
                         >
                             Flashcard
                         </Link>
-                        <Link to="/admin/testmanagement" className={isActive("/admin/testmanagement") ? "active" : ""}>
+                        <Link to="/admin/testmanagement/home" className={isActive("/admin/testmanagement") ? "active" : ""}>
                             Cambridge
                         </Link>
                     </>

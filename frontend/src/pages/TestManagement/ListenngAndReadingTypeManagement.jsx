@@ -87,7 +87,7 @@ const uploadToServer = async (file, baseUrl, token) => {
         <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
           {imageSrcLocal ? (
             <>
-              <img src={imageSrcLocal} alt={imageAltLocal} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
+              <img src={imageSrcLocal.url} alt={imageAltLocal} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
               <button className="ltm_btn" onClick={() => fileRef.current?.click()}>Update</button>
               <button className="ltm_btn" onClick={() => { setImageSrcLocal(''); setImageAltLocal(''); markDirty() }}>Remove</button>
             </>
@@ -223,7 +223,7 @@ const uploadToServer = async (file, baseUrl, token) => {
         <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
           {imageSrcLocal ? (
             <>
-              <img src={imageSrcLocal} alt={imageAltLocal} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
+              <img src={imageSrcLocal.url} alt={imageAltLocal} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
               <button className="ltm_btn" onClick={() => fileRef.current?.click()}>Update</button>
               <button className="ltm_btn" onClick={() => { setImageSrcLocal(''); setImageAltLocal('') }}>Remove</button>
             </>
@@ -293,9 +293,36 @@ const uploadToServer = async (file, baseUrl, token) => {
     const n = Math.max(1, Number(questionEnd) - Number(questionStart) + 1)
     const parseKeysFromTitle = (t) => {
       const m = t.match(/\b[A-Z]\b/g)
-      if (m && m.length) return m
-      if (/True\s*False/i.test(t) || /Not Given/i.test(t) || /Yes\s*No/i.test(t)) return ['A','B','C']
-      return ['A','B','C']
+      if (m && m.length) {
+        // trường hợp kiểu: A D
+        // hoặc OCR bị mất dấu nối
+        if (
+          m.length === 2 &&
+          m[1].charCodeAt(0) !== m[0].charCodeAt(0) + 1
+        ) {
+          const start = m[0].charCodeAt(0)
+          const end = m[1].charCodeAt(0)
+
+          const result = []
+
+          for (let i = start; i <= end; i++) {
+            result.push(String.fromCharCode(i))
+          }
+
+          return result
+        }
+
+        return m
+      }
+      if (/True\s*False/i.test(t)) {
+        return ['TRUE', 'FALSE', 'NOT GIVEN']
+      }
+
+      if (/Yes\s*No/i.test(t)) {
+        return ['YES', 'NO', 'NOT GIVEN']
+      }
+
+      return ['A', 'B', 'C']
     }
 
     const [questions, setQuestions] = useState(() => {
@@ -377,7 +404,7 @@ const uploadToServer = async (file, baseUrl, token) => {
         <div style={{ marginBottom: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
           {exerciseImage ? (
             <>
-              <img src={exerciseImage} alt={exerciseImageAlt} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
+              <img src={exerciseImage.url} alt={exerciseImageAlt} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
               <button className="ltm_btn" onClick={() => fileRef.current?.click()}>Update</button>
               <button className="ltm_btn" onClick={() => { setExerciseImage(''); setExerciseImageAlt(''); markDirty() }}>Remove</button>
             </>
@@ -481,6 +508,7 @@ const uploadToServer = async (file, baseUrl, token) => {
     const [questionsLocal, setQuestionsLocal] = useState(() => (initial && initial.block && Array.isArray(initial.block.questions)) ? initial.block.questions.map(q => ({ q: Number(q.q), label: q.label })) : Array.from({ length: n }, (_, i) => ({ q: Number(questionStart) + i, label: '' })))
     const [exerciseImage, setExerciseImage] = useState(initial?.imageBlock?.src || '')
     const [exerciseImageAlt, setExerciseImageAlt] = useState(initial?.imageBlock?.alt || '')
+    const [duplicate, setDuplicate] = useState(Boolean(initial?.block?.duplicate))
     const { url, token } = useContext(StoreContext)
     const exerciseFileRef = useRef(null)
     const markDirty = () => onDirtyChange && onDirtyChange(true)
@@ -501,7 +529,7 @@ const uploadToServer = async (file, baseUrl, token) => {
     const updateQuestionLabel = (index, value) => setQuestionsLocal(prev => { const copy = [...prev]; copy[index].label = value; markDirty(); return copy })
 
     const handleSave = () => {
-      const block = { type: 'matching', duplicate: false, options: options.map(o => ({ key: o.key, text: o.text })), questions: questionsLocal.map(q => ({ q: Number(q.q), label: q.label })) }
+      const block = { type: 'matching', duplicate: Boolean(duplicate), options: options.map(o => ({ key: o.key, text: o.text })), questions: questionsLocal.map(q => ({ q: Number(q.q), label: q.label })) }
       const imageBlock = exerciseImage ? { type: 'image', src: exerciseImage, alt: exerciseImageAlt } : null
       onSave(imageBlock ? { block, imageBlock } : block)
       onDirtyChange && onDirtyChange(false)
@@ -510,7 +538,7 @@ const uploadToServer = async (file, baseUrl, token) => {
     useEffect(() => {
       if (!registerGetPayload) return
       const getter = () => {
-        const block = { type: 'matching', duplicate: false, options: options.map(o => ({ key: o.key, text: o.text })), questions: questionsLocal.map(q => ({ q: Number(q.q), label: q.label })) }
+        const block = { type: 'matching', duplicate: Boolean(duplicate), options: options.map(o => ({ key: o.key, text: o.text })), questions: questionsLocal.map(q => ({ q: Number(q.q), label: q.label })) }
         const imageBlock = exerciseImage ? { type: 'image', src: exerciseImage, alt: exerciseImageAlt } : null
         return imageBlock ? { block, imageBlock } : block
       }
@@ -523,9 +551,9 @@ const uploadToServer = async (file, baseUrl, token) => {
         <div style={{ marginBottom: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
           {exerciseImage ? (
             <>
-              <img src={exerciseImage} alt={exerciseImageAlt} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
+              <img src={exerciseImage.url} alt={exerciseImageAlt} style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6 }} />
               <button className="ltm_btn" onClick={() => exerciseFileRef.current?.click()}>Update</button>
-              <button className="ltm_btn" onClick={() => { setExerciseImage(''); setExerciseImageAlt('') }}>Remove</button>
+              <button className="ltm_btn" onClick={() => { setExerciseImage({}); setExerciseImageAlt('') }}>Remove</button>
             </>
           ) : (
             <input type="file" accept="image/*" onChange={async (e) => {
@@ -559,6 +587,13 @@ const uploadToServer = async (file, baseUrl, token) => {
               toast.error('Image upload failed')
             }
           }} />
+        </div>
+        <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+          <label style={{ marginRight: 8 }}>Allow duplicate</label>
+          <select className="ltm_select" value={duplicate ? 'true' : 'false'} onChange={e => { setDuplicate(e.target.value === 'true'); markDirty() }}>
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
         </div>
         <div>
           <label>Options</label>
