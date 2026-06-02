@@ -50,6 +50,7 @@
   border: 1px solid #e5e7eb;
   padding: 16px;
   transition: 0.2s;
+  height: fit-content;
 }
 
 .camlib-card:hover {
@@ -95,7 +96,7 @@
   background: rgb(36, 106, 164);
 }
 
-.camlib-btn-reading {
+.camlib-btn-reading, .camlib-btn-speaking {
   background: #059669;
 }
 
@@ -143,7 +144,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 10004;
 }
 
 .mode-popup {

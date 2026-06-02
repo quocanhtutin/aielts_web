@@ -326,13 +326,61 @@ const TaskBoard = ({
 
         if (isNaN(fromColIndex) || isNaN(fromCardIndex)) return;
 
-        const updated = topicWithWord.map(c => ({ ...c, cards: [...c.cards] }));
+        // Prevent noop (same column)
+        if (fromColIndex === toColIndex) return;
 
-        const [movedCard] = updated[fromColIndex].cards.splice(fromCardIndex, 1);
-        const cardWithNewCol = { ...movedCard, columnId: updated[toColIndex].id };
+        const sourceCol = topicWithWord[fromColIndex];
+        const targetCol = topicWithWord[toColIndex];
+        const movedCard = sourceCol?.words?.[fromCardIndex];
+        if (!movedCard) return;
 
-        updated[toColIndex].cards.push(cardWithNewCol);
-        setTopicWithWord(updated);
+        try {
+            const headers = { headers: { Authorization: `Bearer ${token}` } };
+
+            // Prepare payload for adding to target column (exclude _id)
+            const payload = {
+                word: movedCard.word,
+                type: movedCard.type,
+                pronunciation: movedCard.pronunciation,
+                definition: movedCard.definition,
+                exampleSentence: movedCard.exampleSentence,
+                synonym: Array.isArray(movedCard.synonym) ? movedCard.synonym : (movedCard.synonym ? movedCard.synonym.split(",").map(s=>s.trim()) : []),
+                opposite: Array.isArray(movedCard.opposite) ? movedCard.opposite : (movedCard.opposite ? movedCard.opposite.split(",").map(s=>s.trim()) : []),
+                description: movedCard.description || ""
+            };
+
+            // Create new word in target column
+            const addRes = await axios.post(`${url}/api/flashcard/word/${targetCol._id}`, payload, headers);
+            if (!addRes.data?.success) {
+                toast.error(addRes.data?.message || 'Lỗi khi thêm thẻ vào cột mới');
+                return;
+            }
+            const newWord = addRes.data.data;
+
+            // Delete old word from source column
+            const delRes = await axios.delete(`${url}/api/flashcard/word/${movedCard._id}`, headers);
+            if (!delRes.data?.success) {
+                // rollback: try to delete newly created word
+                try { await axios.delete(`${url}/api/flashcard/word/${newWord._id}`, headers); } catch (err) {}
+                toast.error('Lỗi khi xóa thẻ ở cột cũ');
+                return;
+            }
+
+            // Both API calls succeeded — update UI: remove from source, append to target
+            setTopicWithWord(prev => prev.map((col, idx) => {
+                if (idx === fromColIndex) {
+                    return { ...col, words: col.words.filter((_, i) => i !== fromCardIndex) };
+                }
+                if (idx === toColIndex) {
+                    return { ...col, words: [...col.words, newWord] };
+                }
+                return col;
+            }));
+
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi di chuyển thẻ');
+        }
 
 
     };
@@ -346,13 +394,54 @@ const TaskBoard = ({
 
         if (isNaN(fromColIndex) || isNaN(fromCardIndex)) return;
 
-        const updated = topicWithWord.map(c => ({ ...c, cards: [...c.cards] }));
+        // For now, we append moved card to the end of the target column (as requested)
+        const sourceCol = topicWithWord[fromColIndex];
+        const targetCol = topicWithWord[toColIndex];
+        const movedCard = sourceCol?.words?.[fromCardIndex];
+        if (!movedCard) return;
 
-        const [movedCard] = updated[fromColIndex].cards.splice(fromCardIndex, 1);
-        const cardWithNewCol = { ...movedCard, columnId: updated[toColIndex].id };
+        try {
+            const headers = { headers: { Authorization: `Bearer ${token}` } };
 
-        updated[toColIndex].cards.splice(targetCardIndex, 0, cardWithNewCol);
-        setTopicWithWord(updated);
+            const payload = {
+                word: movedCard.word,
+                type: movedCard.type,
+                pronunciation: movedCard.pronunciation,
+                definition: movedCard.definition,
+                exampleSentence: movedCard.exampleSentence,
+                synonym: Array.isArray(movedCard.synonym) ? movedCard.synonym : (movedCard.synonym ? movedCard.synonym.split(",").map(s=>s.trim()) : []),
+                opposite: Array.isArray(movedCard.opposite) ? movedCard.opposite : (movedCard.opposite ? movedCard.opposite.split(",").map(s=>s.trim()) : []),
+                description: movedCard.description || ""
+            };
+
+            const addRes = await axios.post(`${url}/api/flashcard/word/${targetCol._id}`, payload, headers);
+            if (!addRes.data?.success) {
+                toast.error(addRes.data?.message || 'Lỗi khi thêm thẻ vào cột mới');
+                return;
+            }
+            const newWord = addRes.data.data;
+
+            const delRes = await axios.delete(`${url}/api/flashcard/word/${movedCard._id}`, headers);
+            if (!delRes.data?.success) {
+                try { await axios.delete(`${url}/api/flashcard/word/${newWord._id}`, headers); } catch (err) {}
+                toast.error('Lỗi khi xóa thẻ ở cột cũ');
+                return;
+            }
+
+            setTopicWithWord(prev => prev.map((col, idx) => {
+                if (idx === fromColIndex) {
+                    return { ...col, words: col.words.filter((_, i) => i !== fromCardIndex) };
+                }
+                if (idx === toColIndex) {
+                    return { ...col, words: [...col.words, newWord] };
+                }
+                return col;
+            }));
+
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi di chuyển thẻ');
+        }
 
     };
 

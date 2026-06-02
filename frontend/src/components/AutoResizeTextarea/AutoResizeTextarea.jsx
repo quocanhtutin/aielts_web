@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import './AutoResizeTextarea.css'
 
-const AutoResizeTextarea = ({ value, onChange }) => {
+const AutoResizeTextarea = ({ value, onChange, className = '' }) => {
     const textareaRef = useRef(null);
 
     useEffect(() => {
@@ -12,12 +12,14 @@ const AutoResizeTextarea = ({ value, onChange }) => {
         }
     }, [value]);
 
+    const cls = ['auto-textarea', className].filter(Boolean).join(' ')
+
     return (
         <textarea
             ref={textareaRef}
             value={value}
             onChange={onChange}
-            className="auto-textarea"
+            className={cls}
         ></textarea>
     );
 };

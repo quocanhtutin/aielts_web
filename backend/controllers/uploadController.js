@@ -4,7 +4,7 @@ import streamifier from "streamifier";
 /**
  * Upload file từ buffer (multer memoryStorage)
  */
-const streamUpload = (file, folder) => {
+export const streamUpload = (file, folder) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -89,5 +89,20 @@ export const deleteFile = async (req, res) => {
       success: false,
       message: "Delete failed"
     });
+  }
+};
+
+export const deleteCloudinaryAudios = async (publicIds = []) => {
+  try {
+    const ids = publicIds.filter(Boolean);
+
+    if (!ids.length) return;
+
+    await cloudinary.api.delete_resources(ids, {
+      resource_type: "video"
+    });
+
+  } catch (err) {
+    console.error("Delete cloudinary audios error:", err);
   }
 };

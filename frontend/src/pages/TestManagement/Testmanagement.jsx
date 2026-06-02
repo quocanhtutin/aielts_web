@@ -3,6 +3,8 @@ import './TestManagement.css'
 import ManagementSidebar from '../../components/ManagementSidebar/ManagementSidebar'
 import ListeningTestManagement from './ListeningTestManagement'
 import ReadingTestManagement from './ReadingTestManagement'
+import WritingTestManagement from './WritingTestManagement'
+import SpeakingTestManagement from './SpeakingTestManagement'
 import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -174,7 +176,8 @@ const TestManagement = () => {
       if (!listTitle.trim()) return;
       try {
           const response = await axios.post(`${url}/api/test/collections`,{
-              title: listTitle
+              title: listTitle,
+              type: sidebarData[addingIndex].category
           },{
               headers: { Authorization: `Bearer ${token}` },
           })
@@ -272,7 +275,23 @@ const TestManagement = () => {
                   collectionSkills={collectionSkills}
                   setCollectionSkills={setCollectionSkills}
                 />)}
-              {activeSkill !== 'listening' && activeSkill !== 'reading' && (
+              {activeSkill === 'writing' && (
+                <WritingTestManagement 
+                  testCollection={selectedCollection}
+                  setSidebarData={setSidebarData} 
+                  collectionSkills={collectionSkills}
+                  setCollectionSkills={setCollectionSkills}
+                />
+              )}
+              {activeSkill === 'speaking' && (
+                <SpeakingTestManagement 
+                  testCollection={selectedCollection}
+                  setSidebarData={setSidebarData} 
+                  collectionSkills={collectionSkills}
+                  setCollectionSkills={setCollectionSkills}
+                />
+              )}
+              {activeSkill !== 'listening' && activeSkill !== 'reading' && activeSkill !== 'writing' && activeSkill !== 'speaking' && (
                 <div style={{ padding: 20 }}><em>{activeSkill} management not implemented yet.</em></div>
               )}
               </>

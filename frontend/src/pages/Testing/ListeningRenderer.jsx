@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ListeningRenderer.css";
+import { ScrollText } from 'lucide-react'
 
 const Instruction = ({ questionRange, title, note }) => {
   return (
@@ -11,7 +12,7 @@ const Instruction = ({ questionRange, title, note }) => {
   );
 };
 
-const NoteBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
+const NoteBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false, onOpenScriptForQuestion }) => {
   return (
     <div className="ls-note-block">
       <h3>{block.heading}</h3>
@@ -29,7 +30,7 @@ const NoteBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = 
               const isCorrect = isSubmitted && expected !== "" && normalize(user) === normalize(expected);
 
               return (
-                <div key={idx} style={{ display: "inline" }} id={`q-${c.q}`}>
+                <div key={idx} style={{ display: "inline", alignItems: 'center' }} id={`q-${c.q}`}>
                     <p className="ls_question_number">{c.q}.</p>
                     <input
                         key={idx}
@@ -39,6 +40,11 @@ const NoteBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = 
                     />
                     {isSubmitted && expected !== "" && !isCorrect && (
                       <span className="correct-answer">{expected}</span>
+                    )}
+                    {isSubmitted && onOpenScriptForQuestion && (
+                      <button className="ls-script-btn" onClick={() => onOpenScriptForQuestion(qid)} title="Xem script">
+                        <ScrollText size={16} />
+                      </button>
                     )}
                 </div>
               );
@@ -52,8 +58,8 @@ const NoteBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = 
   );
 };
 
-const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
-  const renderCellContent = (cell, answers, onChange) => {
+const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false, onOpenScriptForQuestion }) => {
+  const renderCellContent = (cell, answers, onChange, onOpenScriptForQuestion) => {
         if (typeof cell === "string") return cell;
 
         if (Array.isArray(cell)) {
@@ -79,6 +85,11 @@ const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted =
                       {isSubmitted && expected !== "" && !isCorrect && (
                         <span className="correct-answer">{expected}</span>
                       )}
+                      {isSubmitted && onOpenScriptForQuestion && (
+                        <button className="ls-script-btn" onClick={() => onOpenScriptForQuestion(qid)} title="Xem script">
+                          <ScrollText size={16} />
+                        </button>
+                      )}
                     </div>
                   );
                 }
@@ -87,7 +98,7 @@ const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted =
             });
         }
 
-        if (typeof cell === "object" && cell.q) {
+          if (typeof cell === "object" && cell.q) {
           const qid = cell.q;
           const expected = (answerKeyMap && answerKeyMap[qid]) || "";
           const user = answers[qid] || "";
@@ -104,6 +115,11 @@ const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted =
                   />
                   {isSubmitted && expected !== "" && !isCorrect && (
                     <span className="correct-answer">{expected}</span>
+                  )}
+                  {isSubmitted && onOpenScriptForQuestion && (
+                    <button className="ls-script-btn" onClick={() => onOpenScriptForQuestion(qid)} title="Xem script">
+                      <ScrollText size={16} />
+                    </button>
                   )}
                 </div>
           );
@@ -127,7 +143,7 @@ const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted =
             <tr key={i}>
               {row.map((cell, j) => {return(
                 <td key={j}>
-                    {renderCellContent(cell, answers, onChange)}
+                        {renderCellContent(cell, answers, onChange, onOpenScriptForQuestion)}
                 </td>
               )
                 })}
@@ -139,7 +155,7 @@ const TableBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted =
   );
 };
 
-const MCQBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
+const MCQBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false, onOpenScriptForQuestion }) => {
   return (
     <div className="ls-mcq">
       {block.questions.map((q) => {
@@ -152,8 +168,13 @@ const MCQBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = f
 
         return (
           <div key={q.q} className="ls-mcq-item" id={`q-${q.q}`}>
-            <div className="ls-question-title">
-              {q.q}. {q.question}
+            <div className="ls-question-title" style={{display:'flex', alignItems:'center', gap:8}}>
+              <div >{q.q}. {q.question}</div>
+              {isSubmitted && onOpenScriptForQuestion && (
+                <button className="ls-script-btn" onClick={() => onOpenScriptForQuestion(q.q)} title="Xem script">
+                  <ScrollText size={16} />
+                </button>
+              )}
             </div>
 
             <div
@@ -206,7 +227,7 @@ const MCQBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = f
   );
 };
 
-const MatchingBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
+const MatchingBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false, onOpenScriptForQuestion }) => {
   const [openQ, setOpenQ] = useState(null);
   const wrapperRef = useRef();
 
@@ -270,8 +291,13 @@ const MatchingBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitte
                   className="ls-match-item"
                   id={`q-${q.q}`}
                 >
-              <span>
-                {q.q}. {q.label}
+              <span style={{display:'flex', alignItems:'center', gap:8}}>
+                <span>{q.q}. {q.label}</span>
+                {isSubmitted && onOpenScriptForQuestion && (
+                  <button className="ls-script-btn" onClick={() => onOpenScriptForQuestion(q.q)} title="Xem script">
+                    <ScrollText size={16} />
+                  </button>
+                )}
               </span>
 
               <div className="ls-select-wrapper">
@@ -324,7 +350,7 @@ const MatchingBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitte
   );
 };
 
-const DiagramLabelBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
+const DiagramLabelBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubmitted = false, onOpenScriptForQuestion }) => {
   return (
     <div className="ls-diagram-label">
       {block.questions.map((q) => {
@@ -344,6 +370,11 @@ const DiagramLabelBlock = ({ block, answers, onChange, answerKeyMap = {}, isSubm
             {isSubmitted && expected !== "" && !isCorrect && (
               <span className="correct-answer">{expected}</span>
             )}
+            {isSubmitted && onOpenScriptForQuestion && (
+              <button className="ls-script-btn" onClick={() => onOpenScriptForQuestion(q.q)} title="Xem script">
+                <ScrollText size={16} />
+              </button>
+            )}
           </div>
         );
       })}
@@ -359,7 +390,7 @@ const ImageBlock = ({ src, alt }) => {
   );
 };
 
-const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSubmitted = false }) => {
+const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSubmitted = false, onOpenScriptForQuestion }) => {
   return (
     <div>
       {blocks.map((block, index) => {
@@ -376,6 +407,7 @@ const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSub
                 onChange={onChange}
                 answerKeyMap={answerKeyMap}
                 isSubmitted={isSubmitted}
+                onOpenScriptForQuestion={onOpenScriptForQuestion}
               />
             );
 
@@ -388,6 +420,7 @@ const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSub
                 onChange={onChange}
                 answerKeyMap={answerKeyMap}
                 isSubmitted={isSubmitted}
+                onOpenScriptForQuestion={onOpenScriptForQuestion}
               />
             );
 
@@ -399,7 +432,8 @@ const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSub
                     answers={answers}
                     onChange={onChange}
                     answerKeyMap={answerKeyMap}
-                    isSubmitted={isSubmitted}
+                  isSubmitted={isSubmitted}
+                  onOpenScriptForQuestion={onOpenScriptForQuestion}
                 />
                 );
 
@@ -411,7 +445,8 @@ const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSub
                     answers={answers}
                     onChange={onChange}
                     answerKeyMap={answerKeyMap}
-                    isSubmitted={isSubmitted}
+                  isSubmitted={isSubmitted}
+                  onOpenScriptForQuestion={onOpenScriptForQuestion}
                 />
                 );
 
@@ -423,7 +458,8 @@ const ListeningRenderer = ({ blocks, answers, onChange, answerKeyMap = {}, isSub
                     answers={answers}
                     onChange={onChange}
                     answerKeyMap={answerKeyMap}
-                    isSubmitted={isSubmitted}
+                isSubmitted={isSubmitted}
+                onOpenScriptForQuestion={onOpenScriptForQuestion}
                     />
                 );
 

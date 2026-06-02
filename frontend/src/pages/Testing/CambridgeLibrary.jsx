@@ -6,7 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { StoreContext } from '../../context/StoreContext'
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 9;
 
 const CambridgeLibrary = () => {
 

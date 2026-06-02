@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import Home from './pages/Home/Home'
 import Navbar from './components/Navbar/Navbar'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 import Footer from './components/Footer/Footer'
 import Course from './pages/Course/Course'
 import { ToastContainer } from 'react-toastify';
@@ -24,6 +24,7 @@ import CambridgeLibrary from './pages/Testing/CambridgeLibrary'
 import ListeningTestPage from './pages/Testing/ListeningTestPage'
 import ReadingTestPage from './pages/Testing/ReadingTestPage'
 import WritingTestPage from './pages/Testing/WritingTestPage'
+import SpeakingTestPage from './pages/Testing/SpeakingTestPage'
 import FlashcardManagement from './pages/FlashcardManagement/FlashcardManagement'
 import TestManagement from './pages/TestManagement/TestManagement'
 
@@ -31,22 +32,24 @@ const App = () => {
 
   const { userRole, courses } = useContext(StoreContext)
   const [showLogin, setShowLogin] = useState(false)
+  const location = useLocation();
+
+  const hideNavbarFor = ['/listeningtest', '/readingtest', '/writingtest', '/speakingtest'];
+  const hideNavbar = hideNavbarFor.some(p => location.pathname.startsWith(p));
 
   return (
     <>
       {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
       <div className='app-container'>
         <ToastContainer />
-        <Navbar setShowLogin={setShowLogin} />
+        {!hideNavbar && <Navbar setShowLogin={setShowLogin} />}
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/courses' element={<Course courses={courses} />} />
           <Route path='/course/:id' element={<CourseDetail setShowLogin={setShowLogin} />} />
           <Route path='/publiccollection' element= {<PublicNewWordCollections setShowLogin={setShowLogin} />}/>
           <Route path='/cambridgelibrary' element={<CambridgeLibrary />} />
-          <Route path='/listeningtest/:id' element={<ListeningTestPage />} />
-          <Route path='/readingtest/:id' element={<ReadingTestPage />} />
-          <Route path='/writingtest/:id' element={<WritingTestPage />} />
+          
           {userRole === "admin" && (
             <>
               <Route path='/admin/accountmanagement' element={<AccountManagement />} />
@@ -66,6 +69,10 @@ const App = () => {
               <Route path='/user/profile' element={<UserProfile />} />
               <Route path='/user/mynewwordsboard' element={<MyNewWords />} />
               <Route path='/user/flashcards/:collectionID' element={<FlashCards />} />
+              <Route path='/listeningtest/:id' element={<ListeningTestPage />} />
+              <Route path='/readingtest/:id' element={<ReadingTestPage />} />
+              <Route path='/writingtest/:id' element={<WritingTestPage />} />
+              <Route path='/speakingtest/:id' element={<SpeakingTestPage />} />
             </>
           )}
         </Routes>

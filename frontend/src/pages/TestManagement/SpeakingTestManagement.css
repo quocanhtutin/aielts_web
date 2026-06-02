@@ -1,0 +1,43 @@
+
+.stm_container{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    width:100%;
+}
+
+.stm_parts{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.stm_part_card{
+    background:#fff;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    overflow:hidden;
+}
+
+.stm_question_group{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.stm_question_item{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+}
+
+.stm_question_item .ltm_input,
+.stm_question_item .ltm_textarea{
+    flex:1;
+}
+
+.stm_cue_card{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}

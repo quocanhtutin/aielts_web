@@ -223,7 +223,9 @@ const generateSuggestionsFromAI = async (q, topic) => {
         You are an English vocabulary assistant for IELTS.
 
         Generate 5 English words related to the topic: "${topic}" 
-        and starting with: "${q}".
+        and starting with: "${q}". 
+        If there is a word is ${q}, include it in the first of the array.
+        If there is no word, return empty array.
 
         Return ONLY a valid JSON array. No explanation, no markdown.
 

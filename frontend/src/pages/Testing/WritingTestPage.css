@@ -1,10 +1,10 @@
 .writing-container {
-  padding-top: 60px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f1f5f9;
   font-size: 14px;
+  color: #333
 }
 
 .writing-body {
@@ -24,7 +24,7 @@
 
 /* LEFT */
 .writing-left {
-  width: 50%;
+  width: 40%;
   padding: 20px;
   overflow-y: auto;
   border-right: 1px solid #ddd;
@@ -39,6 +39,7 @@
 /* DRAFT */
 .writing-draft {
   margin-top: 20px;
+  position: relative;
 }
 
 .writing-draft.small textarea {
@@ -56,7 +57,7 @@
 
 /* RIGHT */
 .writing-right {
-  width: 50%;
+  width: 60%;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -73,4 +74,36 @@
 .word-count {
   text-align: right;
   margin-top: 10px;
+}
+
+/* FAB skeleton loading */
+/* .fab.loading {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #ececec, #f5f5f5, #ececec);
+  border-color: #eaeaea;
+}
+.fab.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 250%;
+  height: 100%;
+  animation: skeleton-shimmer 1.2s linear infinite;
+} */
+.fab.loading svg { 
+  animation: spin 1s linear infinite;
+}
+@keyframes skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.grading-display {
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;
+  line-height: 1.6;
 }

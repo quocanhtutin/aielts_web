@@ -4,7 +4,7 @@ import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import './ListeningTestManagement.css'
-import { Pen, PenOff, FilePlusCorner, FileHeadphone, Trash2, ScrollText, ChevronDown,ChevronUp, ALargeSmall, PlusCircle } from 'lucide-react'
+import {Archive, ArchiveX, Pen, PenOff, FilePlusCorner, FileHeadphone, Trash2, ScrollText, ChevronDown,ChevronUp, ALargeSmall, PlusCircle } from 'lucide-react'
 import ListeningRenderer from '../Testing/ListeningRenderer'
 import { NoteExercise, TableExercise, MCQExercise, MatchingExercise } from './ListenngAndReadingTypeManagement'
 import { col } from 'framer-motion/client'
@@ -81,7 +81,7 @@ const ReadingTestManagement = ({ testCollection, setSidebarData, collectionSkill
   const [duration, setDuration] = useState(30)
 
   const [parts, setParts] = useState([])
-
+  const [isAct, setIsAct] = useState(false)
   const [partNumber, setPartNumber] = useState(1)
   const [startQuestion, setStartQuestion] = useState(1)
   const [endQuestion, setEndQuestion] = useState(4)
@@ -205,7 +205,7 @@ const ReadingTestManagement = ({ testCollection, setSidebarData, collectionSkill
   // fetch existing skill data
       const fetchSkill = async () => {
         try {
-          const res = await axios.get(`${url}/api/test/skills/${skillId}`, {
+          const res = await axios.get(`${url}/api/test/skills/${skillId}/practice`, {
             headers: { Authorization: `Bearer ${token}` }
           })
           if (res.data.success) {
@@ -217,6 +217,7 @@ const ReadingTestManagement = ({ testCollection, setSidebarData, collectionSkill
             setTitle(skill.title || '')
             setDescription(skill.description || '')
             setDuration(skill.duration || 30)
+            setIsAct(skill.isActive || false)
               const loadedParts = derivePartsWithExercises(skill.parts || [])
               setParts(loadedParts)
               // compute sensible defaults for adding the next part based on loaded parts
@@ -238,6 +239,19 @@ const ReadingTestManagement = ({ testCollection, setSidebarData, collectionSkill
           toast.error('Failed to load skill data')
         }
       }
+
+  const toggleActive = async (isActive) => {
+    try{
+      const res = await axios.put(`${url}/api/test/skills/${skillId}/active`, { isActive: isActive }, { headers: { Authorization: `Bearer ${token}` } })
+      if (res.data?.success) {
+        setIsAct(isActive)
+      }
+    } catch (e) {
+      console.error(e)
+      toast.error('Lỗi cập nhật trạng thái test')
+    }
+  }
+
   useEffect(() => {
     if (skillId) {
       
@@ -1034,6 +1048,18 @@ const ReadingTestManagement = ({ testCollection, setSidebarData, collectionSkill
           <label>Duration</label>
           <input className="ltm_input ltm_duration_input" type="number" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder='(minutes)'/>
         </div>
+
+        {skillId&&(isAct?
+                <div className="toggle_archieve" style={{ cursor: 'pointer' }} onClick={()=>toggleActive(false)}>
+                  <Archive size={22} className="" title="Archive" />
+                  Lưu trữ
+                </div>
+                :
+                <div className="toggle_archieve" style={{ cursor: 'pointer' }} onClick={()=>toggleActive(true)}>
+                  <ArchiveX size={22} className="" title="Unarchive" />
+                  Bỏ lưu trữ
+                </div>
+                )}
 
         <button className="ltm_btn ltm_primary" onClick={handleSaveOrCreate}>{skillId ? 'Save Reading Test' : 'Create Reading Test'}</button>
       </div>

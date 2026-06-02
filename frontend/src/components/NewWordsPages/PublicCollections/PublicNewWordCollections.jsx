@@ -195,6 +195,9 @@ const PublicNewWordCollections = ({setShowLogin}) => {
     const navigate = useNavigate()
     const {token, url, userRole, publicTopics, setPublicTopics, fetchOwnedTopics} = useContext(StoreContext)
 
+    const ITEMS_PER_PAGE = 9;
+    const [currentPage, setCurrentPage] = useState(1);
+
     const [filteredItems, setFilteredItems] = useState(publicTopics);
     const [loading, setLoading] = useState(false)
     const [cloning, setCloning] = useState("")
@@ -214,11 +217,13 @@ const PublicNewWordCollections = ({setShowLogin}) => {
     }
 
     const handleSearch = (searchTerm) => {
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        const newFilteredItems = mockTopics.filter(item =>
-            item.topic.toLowerCase().includes(lowerCaseSearchTerm) || item.description.toLowerCase().includes(lowerCaseSearchTerm)
-        );
-        setFilteredItems(newFilteredItems);
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      const source = (publicTopics && publicTopics.length) ? publicTopics : mockTopics;
+      const newFilteredItems = source.filter(item =>
+        (item.topic || "").toLowerCase().includes(lowerCaseSearchTerm) || (item.description || "").toLowerCase().includes(lowerCaseSearchTerm)
+      );
+      setFilteredItems(newFilteredItems);
+      setCurrentPage(1);
     };
 
     useEffect(()=>{
@@ -228,7 +233,12 @@ const PublicNewWordCollections = ({setShowLogin}) => {
 
     useEffect(()=>{
       setFilteredItems(publicTopics)
+      setCurrentPage(1)
     }, [publicTopics])
+
+    const totalPages = Math.ceil((filteredItems?.length || 0) / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const currentItems = (filteredItems || []).slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handleCloneTopic = async (topic) => {
       if (token && userRole == "user") {
@@ -275,7 +285,7 @@ const PublicNewWordCollections = ({setShowLogin}) => {
       </div>
       <div className="public_display_list_container">
         <div className="public_display_list">
-          {!loading ? filteredItems.map(topic => {
+          {!loading ? currentItems.map(topic => {
             return(<Topics key={topic._id} collection={topic} handleCloneTopic={()=>handleCloneTopic(topic)} />)
           })
           :
@@ -288,10 +298,26 @@ const PublicNewWordCollections = ({setShowLogin}) => {
           <Topics isLoading={true} />
           <Topics isLoading={true} />
           <Topics isLoading={true} />
+          <Topics isLoading={true} />
           </>
         }
         </div>
       </div>
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div className="camlib-pagination public-pagination">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index}
+              className={`camlib-page-btn ${currentPage === index + 1 ? "active" : ""}`}
+              onClick={() => setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      )}
 
       {cloning==="processing"&&
         <div className="qr-popup-overlay">

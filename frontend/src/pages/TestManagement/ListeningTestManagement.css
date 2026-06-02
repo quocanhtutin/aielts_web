@@ -58,6 +58,18 @@
 	overflow: hidden;
 }
 
+.toggle_archieve{
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--ltm-muted);
+}
+
+.toggle_archieve:hover{
+	color: var(--ltm-primary);
+	transition: color 0.2s ease;
+}
+
 .ltm_btn{ 
 	padding: 8px 10px; 
 	border-radius: 6px; 
@@ -65,6 +77,7 @@
 	background: transparent; 
 	cursor: pointer; 
 	font-weight: 600; 
+	white-space: nowrap;
 }
 .ltm_btn:hover{ 
 	opacity: 0.7;

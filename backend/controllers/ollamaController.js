@@ -12,7 +12,7 @@ export const streamAIWords = async (socket, topic, amount) => {
     const response = await axios.post(
       "http://localhost:11434/api/chat",
       {
-        model: "llama3.2:3b",
+        model: "gpt-oss:20b-cloud",
         stream: true,
         messages: [
           {
@@ -78,7 +78,7 @@ const fixingWriting = async (req, res) => {
     const { text } = req.body;
 
     const response = await axios.post("http://localhost:11434/api/chat", {
-        model: "llama3.2:3b",
+        model: "gpt-oss:20b-cloud",
         stream: false,
         messages: [
             { role: "system", content: "You are an English writing tutor." },
@@ -93,10 +93,10 @@ const chatting = async (req, res) => {
     const { message } = req.body;
 
     const response = await axios.post("http://localhost:11434/api/chat", {
-        model: "llama3.2:3b",
+        model: "gpt-oss:20b-cloud",
         stream: false,
         messages: [
-            { role: "system", content: "You are an English teacher." },
+            { role: "system", content: "You are an English teacher. Just respond to the user's message in a helpful, short and informative way, no tables." },
             { role: "user", content: message }
         ]
     });
@@ -147,7 +147,7 @@ const fixingSpeaking = async (req, res) => {
         const text = topic + ": " + whisperRes.data.text
 
         const result = await axios.post("http://localhost:11434/api/chat", {
-            model: "llama3.2:3b",
+            model: "gpt-oss:20b-cloud",
             stream: false,
             messages: [
                 { role: "system", content: "You are an English speaking tutor." },

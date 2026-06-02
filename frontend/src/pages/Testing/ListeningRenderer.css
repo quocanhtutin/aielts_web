@@ -48,6 +48,7 @@
 .correct-answer {
   color: #ef4444;
   margin-left: 8px;
+  margin-right: 8px;
   font-weight: 600;
 }
 
@@ -259,4 +260,20 @@
   font-weight: 600;
   border-left: 4px solid #ef4444;
   padding-left: 8px;
+}
+
+.ls-script-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  margin-right:8px;
+  align-self: center;
+}
+.ls-script-btn:hover {
+  color: #111827;
+  transform: scale(1.05);
 }
