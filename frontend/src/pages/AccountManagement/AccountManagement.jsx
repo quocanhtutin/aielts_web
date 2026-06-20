@@ -7,7 +7,7 @@ import AddAdminPopup from "../../components/AddAdminPopup/AddAdminPopup.jsx";
 import UserDetailPopup from "../../components/UserDetailPopup/UserDetailPopup.jsx";
 
 const AccountManagement = () => {
-  const { url, token } = useContext(StoreContext);
+  const { url, token, userEmail } = useContext(StoreContext);
   const [users, setUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [showInactive, setShowInactive] = useState(false);
@@ -28,6 +28,7 @@ const AccountManagement = () => {
         setUsers(data.filter(u => u.role === "user"));
         setAdmins(data.filter(u => u.role === "admin"));
       }
+      console.log(res.data.data);
     } catch (err) {
       toast.error("Lỗi tải danh sách người dùng");
       
@@ -35,6 +36,10 @@ const AccountManagement = () => {
   };
 
   const deactivateUser = async (id) => {
+    if(userEmail === users.find(u => u._id === id)?.email){
+      toast.error("Bạn không thể vô hiệu hóa tài khoản này");
+      return;
+    }
     if (!window.confirm("Bạn có chắc muốn vô hiệu hóa tài khoản này?")) return;
     try {
       const res = await axios.post(`${url}/api/admin/deactivateUser`, { userId: id }, {

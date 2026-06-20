@@ -161,10 +161,6 @@ const MatchGame = ({words,onClose}) => {
                             Khó (20)
                         </div>
                     </div>
-					<p className="highest_per_mode">
-						Kỷ lục: 
-						{mode==="easy_match_game"?recordEasy||"-":recordHard||"-"} s
-					</p>
 
 					{result && (
 						<p className="result_match_game">

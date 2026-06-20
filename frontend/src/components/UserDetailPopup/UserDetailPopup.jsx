@@ -205,7 +205,7 @@ const UserDetailPopup = ({ userId, onClose, onUpdated }) => {
                         <div className="owned-list">
                             {ownedCourses.length === 0 ? <p>Chưa có khóa học</p> : ownedCourses.map((oc) => (
                                 <div className="owned-item" key={String(oc.courseId)}>
-                                    <img src={oc.image} alt={oc.courseName} />
+                                    <img src={oc.image.url || oc.image} alt={oc.courseName} />
                                     <div className="owned-info">
                                         <div className="line1"><p>{oc.courseName}</p>  <p>{oc.category}</p></div>
                                         <div className="line2"><p>Mở: {oc.purchaseDate ? formatDateInput(oc.purchaseDate) : "-"}</p> <p>Hết hạn: {oc.expireDate ? formatDateInput(oc.expireDate) : "-"}</p></div>
@@ -223,7 +223,7 @@ const UserDetailPopup = ({ userId, onClose, onUpdated }) => {
                         <div className="available-list">
                             {availableCourses.length === 0 ? <p>Không còn khóa nào để thêm</p> : availableCourses.map((c) => (
                                 <div className="available-item" key={String(c.courseId)}>
-                                    <img src={c.image} alt={c.name} />
+                                    <img src={c.image.url || c.image} alt={c.name} />
                                     <div className="avail-info">
                                         <div className="top"><p>{c.name}</p> <p>{c.category}</p></div>
                                         <div className="dates">

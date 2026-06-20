@@ -20,17 +20,22 @@ const registerUser = async (req, res) => {
     const { name, password, email, phone } = req.body
 
     try {
-        const exists = await userModel.findOne({ email, isActive: true })
-        if (exists) {
-            return res.json({ success: false, message: "User already exists" })
+        const existEmail = await userModel.findOne({ email, isActive: true })
+        if (existEmail) {
+            return res.json({ success: false, message: "Email đã tồn tại. Vui lòng kiểm tra lại!" })
+        }
+
+        const existPhone = await userModel.findOne({ phone, isActive: true })
+        if (existPhone) {
+            return res.json({ success: false, message: "Số điện thoại đã tồn tại. Vui lòng kiểm tra lại!" })
         }
 
         if (!validator.isEmail(email)) {
-            return res.json({ success: false, message: "Please enter a valid email" });
+            return res.json({ success: false, message: "Vui lòng nhập email hợp lệ!" });
         }
 
         if (password.length < 8) {
-            return res.json({ success: false, message: "Password must be at least 8 characters" });
+            return res.json({ success: false, message: "Mật khẩu phải có ít nhất 8 ký tự" });
         }
 
         // Hash password
@@ -83,15 +88,57 @@ const updateProfile = async (req, res) => {
         const userId = req.user.id;
         const { name, email, phone } = req.body;
 
+        // Kiểm tra email đã tồn tại chưa
+        if (email) {
+            const existedEmail = await userModel.findOne({
+                email,
+                _id: { $ne: userId }
+            });
+
+            if (existedEmail) {
+                return res.json({
+                    success: false,
+                    message: "Email đã tồn tại. Vui lòng kiểm tra lại!"
+                });
+            }
+        }
+
+        // Kiểm tra số điện thoại đã tồn tại chưa
+        if (phone) {
+            const existedPhone = await userModel.findOne({
+                phone,
+                _id: { $ne: userId }
+            });
+
+            if (existedPhone) {
+                return res.json({
+                    success: false,
+                    message: "Số điện thoại đã tồn tại. Vui lòng kiểm tra lại!"
+                });
+            }
+        }
+
         const user = await userModel.findByIdAndUpdate(
             userId,
-            { name, email, phone },
+            {
+                name,
+                email,
+                phone
+            },
             { new: true }
         );
 
-        res.json({ success: true, data: user });
+        return res.json({
+            success: true,
+            data: user
+        });
+
     } catch (err) {
-        res.status(500).json({ success: false, message: "Update failed" });
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: "Update failed"
+        });
     }
 };
 
@@ -138,17 +185,17 @@ const loginUser = async (req, res) => {
         const user = await userModel.findOne({ email })
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User doesn't exist" })
+            return res.json({ success: false, message: "Tài khoản không tồn tại" })
         }
 
         const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch) {
-            return res.status(401).json({ success: false, message: "Invalid credentials" })
+            return res.json({ success: false, message: "Mật khẩu không hợp lệ" })
         }
 
         if (!user.isActive) {
-            return res.json({ success: false, message: "Account is no longer active" })
+            return res.json({ success: false, message: "Tài khoản không còn hoạt động" })
         }
 
         const token = createToken(user);

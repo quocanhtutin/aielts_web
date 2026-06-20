@@ -6,196 +6,15 @@ import SearchBar from '../../SearchBar/SearchBar'
 import { StoreContext } from '../../../context/StoreContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import Footer from '../../Footer/Footer'
 
 const PublicNewWordCollections = ({setShowLogin}) => {
-
-      const mockTopics = [
-
-    {
-    _id: "65a200000000000000000001",
-    topic: "Family",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000001" },
-    { order: 1, wordId: "65a100000000000000000002" },
-    { order: 2, wordId: "65a100000000000000000002" },
-    { order: 3, wordId: "65a100000000000000000002" },
-    { order: 4, wordId: "65a100000000000000000002" },
-    { order: 5, wordId: "65a100000000000000000002" },
-    { order: 6, wordId: "65a100000000000000000002" },
-    { order: 7, wordId: "65a100000000000000000002" },
-    { order: 8, wordId: "65a100000000000000000002" },
-    { order: 9, wordId: "65a100000000000000000002" },
-    { order: 10, wordId: "65a100000000000000000002" },
-    { order: 11, wordId: "65a100000000000000000002" },
-    { order: 12, wordId: "65a100000000000000000002" },
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-    },
-
-    {
-    _id: "65a200000000000000000002",
-    topic: "Education",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000003" },
-    { order: 1, wordId: "65a100000000000000000004" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },
-
-    {
-    _id: "65a200000000000000000003",
-    topic: "Environment",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000005" },
-    { order: 1, wordId: "65a100000000000000000006" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },
-
-    {
-    _id: "65a200000000000000000004",
-    topic: "Business",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000007" },
-    { order: 1, wordId: "65a100000000000000000008" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },
-
-    {
-    _id: "65a200000000000000000005",
-    topic: "Travel",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000009" },
-    { order: 1, wordId: "65a100000000000000000010" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },{
-    _id: "65a200000000000000000001",
-    topic: "Family",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000001" },
-    { order: 1, wordId: "65a100000000000000000002" },
-    { order: 2, wordId: "65a100000000000000000002" },
-    { order: 3, wordId: "65a100000000000000000002" },
-    { order: 4, wordId: "65a100000000000000000002" },
-    { order: 5, wordId: "65a100000000000000000002" },
-    { order: 6, wordId: "65a100000000000000000002" },
-    { order: 7, wordId: "65a100000000000000000002" },
-    { order: 8, wordId: "65a100000000000000000002" },
-    { order: 9, wordId: "65a100000000000000000002" },
-    { order: 10, wordId: "65a100000000000000000002" },
-    { order: 11, wordId: "65a100000000000000000002" },
-    { order: 12, wordId: "65a100000000000000000002" },
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-    },
-
-    {
-    _id: "65a200000000000000000002",
-    topic: "Education",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000003" },
-    { order: 1, wordId: "65a100000000000000000004" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },
-
-    {
-    _id: "65a200000000000000000003",
-    topic: "Environment",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000005" },
-    { order: 1, wordId: "65a100000000000000000006" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },
-
-    {
-    _id: "65a200000000000000000004",
-    topic: "Business",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000007" },
-    { order: 1, wordId: "65a100000000000000000008" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    },
-
-    {
-    _id: "65a200000000000000000005",
-    topic: "Travel",
-    createdDate: new Date(),
-    public: false,
-    ownerId: "user001",
-    userId: "user001",
-    isActive: true,
-    words: [
-    { order: 0, wordId: "65a100000000000000000009" },
-    { order: 1, wordId: "65a100000000000000000010" }
-    ],
-    description: "For speaking part 1. Those words are so familiar to beginner, using them frequently makes you more natural in speaking"
-
-    }
-
-    ]
 
     
     const navigate = useNavigate()
     const {token, url, userRole, publicTopics, setPublicTopics, fetchOwnedTopics} = useContext(StoreContext)
 
-    const ITEMS_PER_PAGE = 9;
+    const ITEMS_PER_PAGE = 8;
     const [currentPage, setCurrentPage] = useState(1);
 
     const [filteredItems, setFilteredItems] = useState(publicTopics);
@@ -209,7 +28,7 @@ const PublicNewWordCollections = ({setShowLogin}) => {
             if (response.data.success && response.data.data) {
                 setPublicTopics(response.data.data);
                 console.log(response.data.data);
-                setTimeout(()=>{setLoading(false)}, 3000)
+                setTimeout(()=>{setLoading(false)}, 1000)
             }
         }catch (err) {
             console.error("Fetch public topics error:", err);
@@ -266,6 +85,7 @@ const PublicNewWordCollections = ({setShowLogin}) => {
     }
 
   return (
+    <div style={{ width:"100vw", height:"fit-content"}}>
     <div className='public_display'>
       <h1 className="camlib-title">
         Kho lưu trữ <span>Bộ sưu tập Flashcard</span>
@@ -290,7 +110,6 @@ const PublicNewWordCollections = ({setShowLogin}) => {
           })
           :
           <> 
-          <Topics isLoading={true} />
           <Topics isLoading={true} />
           <Topics isLoading={true} />
           <Topics isLoading={true} />
@@ -328,6 +147,8 @@ const PublicNewWordCollections = ({setShowLogin}) => {
             </div>
           </div>
         </div>}
+    </div>
+    <Footer />
     </div>
   )
 }

@@ -27,7 +27,7 @@ const CourseItem = ({ id, name, price, image, onClickMore, isActive, activateCou
     return (
         <div className='course-item displayed'>
             <div className='course-item-image-container'>
-                <img className='course-item-image' src={image} />
+                <img className='course-item-image' src={image.url} />
             </div>
             <div className='course-item-info'>
                 <div className='course-item-name-rating'>

@@ -29,6 +29,7 @@ const Course = () => {
     }, [])
 
     return (
+        <div style={{ width:"100vw", height:"fit-content"}}>
         <div className='courses_display_container'>
             <h1 className="camlib-title">
             Các khóa học <span>IELTS 4 Kỹ Năng</span>
@@ -61,7 +62,9 @@ const Course = () => {
                     })}
                 </div>
             </div>
-            <Footer />
+            
+        </div>
+        <Footer />
         </div>
     )
 }

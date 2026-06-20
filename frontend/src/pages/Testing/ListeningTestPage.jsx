@@ -290,6 +290,12 @@ const ListeningTestPage = () => {
 
         const userMessage = { role: "user", content: chatInput };
         setChatMessages(prev => [...prev, userMessage]);
+
+        // add pending assistant placeholder
+        const pendingId = `pending-${Date.now()}`;
+        const pendingMsg = { id: pendingId, role: 'assistant', content: '...', pending: true };
+        setChatMessages(prev => [...prev, pendingMsg]);
+
         const sending = chatInput;
         setChatInput("");
 
@@ -302,15 +308,13 @@ const ListeningTestPage = () => {
 
             const aiContent = res.data?.message?.content || res?.data?.response || JSON.stringify(res.data);
 
-            const aiMessage = { role: "assistant", content: aiContent };
-            setChatMessages(prev => [...prev, aiMessage]);
+            setChatMessages(prev => prev.map(m => m.id === pendingId ? { ...m, content: aiContent, pending: false } : m));
 
         } catch (err) {
             console.error(err);
-            setChatMessages(prev => [
-                ...prev,
-                { role: "assistant", content: "Lỗi khi gọi AI." }
-            ]);
+            setChatMessages(prev => prev.map(m => m.id === pendingId ? { ...m, content: 'Lỗi khi gọi AI.', pending: false } : m));
+        } finally {
+            setTimeout(() => { if (chatBoxRef.current) chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; }, 50);
         }
     };
 
@@ -337,7 +341,7 @@ const ListeningTestPage = () => {
         setDictResult(null);
         if (dictTimerRef.current) clearTimeout(dictTimerRef.current);
         if (!value.trim()) { setDictLoading(false); return; }
-        dictTimerRef.current = setTimeout(() => fetchDict(value), 300);
+        dictTimerRef.current = setTimeout(() => fetchDict(value), 500);
     }
 
     const fetchDict = async (word) => {
@@ -699,8 +703,14 @@ const ListeningTestPage = () => {
 
                             <div className="chat-messages" ref={chatBoxRef}>
                                 {chatMessages.map((msg, idx) => (
-                                    <div key={idx} className={`chat-msg ${msg.role}`}>
-                                        <div className="bubble">{msg.content}</div>
+                                    <div key={msg.id || idx} className={`chat-msg ${msg.role}`}>
+                                        <div className="bubble">
+                                            {msg.pending ? (
+                                                <span className="typing-dots"><span></span><span></span><span></span></span>
+                                            ) : (
+                                                msg.content
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

@@ -15,7 +15,7 @@
 /* Khung chính của popup */
 .popup-content {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 24px 30px;
   width: 420px;
   max-width: 90%;
@@ -60,7 +60,7 @@
 .popup-content input {
   padding: 10px 12px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 15px;
   outline: none;
   transition: all 0.2s ease;
@@ -84,7 +84,7 @@
   background-color: #007bff;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 8px 16px;
   cursor: pointer;
   font-weight: 500;
@@ -100,7 +100,7 @@
   background-color: #ccc;
   color: #333;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 8px 16px;
   cursor: pointer;
   font-weight: 500;

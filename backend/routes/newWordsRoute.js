@@ -16,7 +16,6 @@ import {
     getCollectionDetail,
     generateWordsForTopic,
     getGenerateStatus,
-    startAIStream
 } from "../controllers/newWordsController.js"
 import authMiddleWare from "../middleware/auth.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
@@ -37,11 +36,7 @@ newWordRouter.put("/word/:id/memorized", authMiddleWare, toggleMemorized)
 newWordRouter.get("/suggest", suggestWords)
 newWordRouter.post("/generate-ai-words", authMiddleWare, generateWordsForTopic);
 newWordRouter.get("/generate-status", authMiddleWare, getGenerateStatus);
-newWordRouter.post(
-  "/generate-stream",
-  authMiddleWare,
-  startAIStream
-);
+
 
 // clone
 newWordRouter.post("/topic/:topicId/clone", authMiddleWare, cloneTopic)

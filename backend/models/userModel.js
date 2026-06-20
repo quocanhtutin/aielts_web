@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true }
-}, { timestamps: true }); // thêm timestamps cho createdAt, updatedAt
+}, { timestamps: true }); 
 
 const userModel = mongoose.models.User || mongoose.model("User", userSchema);
 export default userModel;

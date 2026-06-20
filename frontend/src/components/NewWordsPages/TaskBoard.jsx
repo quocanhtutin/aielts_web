@@ -74,7 +74,7 @@ const TaskBoard = ({
                 setLoadingSuggest(false)
                 
             }
-        }, 300)
+        }, 500)
 
         return () => {
             clearTimeout(delay)
@@ -394,6 +394,10 @@ const TaskBoard = ({
 
         if (isNaN(fromColIndex) || isNaN(fromCardIndex)) return;
 
+        // If dropped into the same column it came from, do nothing.
+        // Prevents unnecessary API calls and UI updates when user drops back into the same column.
+        if (fromColIndex === toColIndex) return;
+
         // For now, we append moved card to the end of the target column (as requested)
         const sourceCol = topicWithWord[fromColIndex];
         const targetCol = topicWithWord[toColIndex];
@@ -528,7 +532,7 @@ const TaskBoard = ({
         toast(
             ({ closeToast }) => (
             <div style={{ textAlign: "center", fontSize:"14px" }}>
-                <p>Bạn có chắc muốn xóa từ {word.word} không?</p>
+                <p>Bạn có chắc muốn xóa từ {card.word} không?</p>
                 <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
                 <button
                     className="btn_toast toast_yes"
@@ -566,6 +570,31 @@ const TaskBoard = ({
         })
 
         return res.data.success
+    }
+
+    const toggleArchiveTopic = async (col, isActive)=>{
+        try{
+            const res = await axios.put(`${url}/api/flashcard/topic/${topicWithWord[col]._id}/archive`,{
+                isActive: isActive
+            }, {
+                    headers: { Authorization: `Bearer ${token}` },
+            })
+
+            if(res.data.success){
+                setTopicWithWord(pre=>
+                    pre.map((cols,i) => 
+                        (i === col ) ? 
+                            { ...cols, isActive: isActive } 
+                            : 
+                            { ...cols }
+                    )
+                )
+            }
+        }
+        catch(e){
+            console.log(e);
+            toast.error(isActive? "Lỗi lưu trữ bộ từ vựng!":"Lỗi hủy lưu trữ bộ từ vựng!")
+        }
     }
 
     const handleShareCollection = async (col) => {
@@ -665,7 +694,7 @@ const TaskBoard = ({
 
             <div className="board-wrapper">
                 <div className="board-scroll">
-                    {topicWithWord.map((col, i) => (
+                    {topicWithWord.map((col, i) => col.isActive&&(
                         <div
                             key={i}
                             className="board-column"
@@ -701,7 +730,6 @@ const TaskBoard = ({
                             ) : (
                                 <div className='column-header'>
                                     <h3
-                                        draggable
                                         onDragStart={(e) => onColumnDragStart(e, i)}
                                     >
                                         {col.topic}
@@ -744,7 +772,7 @@ const TaskBoard = ({
                                         <Archive
                                             className='store-column-btn'
                                             size={20}
-                                            onClick={() => storeColumn(i)}
+                                            onClick={() => toggleArchiveTopic(i, false)}
                                         >
                                             <title>Ẩn bộ sưu tập</title>
                                         </Archive>
@@ -908,7 +936,7 @@ const TaskBoard = ({
                                         className="card-add"
                                         onClick={() => displayAddCard(i)}
                                     >
-                                        <p>+ Thêm thẻ</p>
+                                        <p>+ Thêm thẻ từ</p>
                                     </div>
                                 )}
                             </div>
@@ -931,7 +959,7 @@ const TaskBoard = ({
                                 </button>
                             </div>
                         </div> :
-                        <button className="add-column" onClick={() => setShowAddColumn(true)}>+ Thêm cột</button>}
+                        <button className="add-column" onClick={() => setShowAddColumn(true)}>+ Thêm bộ từ vựng</button>}
                 </div>
             </div>
             

@@ -22,6 +22,9 @@ import logout_icon from './logout_icon.png'
 import add_icon from './add_icon.png'
 import upload_area from './upload_area.png'
 import micro from './micro.png'
+import pic1 from './Screenshot 2026-06-13 195017.png'
+import pic2 from './Screenshot 2026-06-13 195119.png'
+import pic3 from './Screenshot 2026-06-13 211218.png'
 
 export const assets = {
     bullet,
@@ -45,7 +48,10 @@ export const assets = {
     logout_icon,
     add_icon,
     upload_area,
-    micro
+    micro,
+    pic1,
+    pic2,
+    pic3
 }
 
 export const course_list = [

@@ -1,5 +1,5 @@
 .courses-container{
-    padding: 0px 100px;
+    padding: 0px 100px 50px 100px;
     flex: 1;
 }
 .courses-container-header{
@@ -18,5 +18,5 @@
     flex-direction: column;
     padding: 60px 0 0 0;
     min-height: 100vh;
-    background: linear-gradient(rgba(36, 106, 164, 0.724),  white, white, white, white, white, white, rgba(36, 106, 164, 0.788) );
+    background: linear-gradient(rgba(36, 106, 164, 0.724),  white, white, white, white, white, white, white);
 }

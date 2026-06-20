@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const exerciseSchema = new mongoose.Schema({
     lessonId: { type: mongoose.Schema.Types.ObjectId, required: true },
-    exercisePdf: { type: String, default: "" },
-    linkAudio: { type: String, default: "" },
+    exercisePdf: {},
+    linkAudio: {},
     answerList: [
         {
             order: Number,

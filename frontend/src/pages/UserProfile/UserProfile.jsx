@@ -45,10 +45,19 @@ const UserProfile = () => {
     };
 
     const handleUpdateProfile = async () => {
-        const confirm = window.confirm("Bạn có chắc muốn cập nhật thông tin?");
-        if (!confirm) return;
-
         try {
+            if(!form.name){
+                toast.error("Tên không được để trống");
+                return;
+            }
+            if(!form.email){
+                toast.error("Email không được để trống");
+                return;
+            }
+            if(!form.phone){
+                toast.error("Số điện thoại không được để trống");
+                return;
+            }
             const res = await axios.post(
                 `${url}/api/user/updateProfile`,
                 form,
@@ -61,6 +70,9 @@ const UserProfile = () => {
                 setUserPhone(form.phone);
                 toast.success("Cập nhật thông tin thành công");
                 setIsEdit(false);
+            }
+            else{
+                toast.error(res.data.message || "Cập nhật thất bại");
             }
         } catch (err) {
             toast.error("Cập nhật thất bại");
@@ -110,6 +122,7 @@ const UserProfile = () => {
                             <input
                                 value={form.name}
                                 onChange={e => setForm({ ...form, name: e.target.value })}
+                                required
                             />
                         ) : (
                             <p>{userName}</p>
@@ -122,6 +135,7 @@ const UserProfile = () => {
                             <input
                                 value={form.email}
                                 onChange={e => setForm({ ...form, email: e.target.value })}
+                                required
                             />
                         ) : (
                             <p>{userEmail}</p>
@@ -134,6 +148,7 @@ const UserProfile = () => {
                             <input
                                 value={form.phone}
                                 onChange={e => setForm({ ...form, phone: e.target.value })}
+                                required
                             />
                         ) : (
                             <p>{userPhone}</p>
@@ -151,6 +166,7 @@ const UserProfile = () => {
                                 placeholder="Mật khẩu hiện tại"
                                 value={oldPass}
                                 onChange={e => setOldPass(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="profile-field">
@@ -160,11 +176,13 @@ const UserProfile = () => {
                                 placeholder="Mật khẩu mới"
                                 value={newPass}
                                 onChange={e => setNewPass(e.target.value)}
+                                required
                             />
-                            {newPass && newPass.length < 8 && (
+                            
+                        </div>
+                        {newPass && newPass.length < 8 && (
                                 <p className="error">Độ dài tối thiểu 8 ký tự</p>
                             )}
-                        </div>
                         <div className="profile-field">
                             <label>Xác nhận mật khẩu mới</label>
                             <input
@@ -172,11 +190,13 @@ const UserProfile = () => {
                                 placeholder="Xác nhận mật khẩu mới"
                                 value={confirmPass}
                                 onChange={e => setConfirmPass(e.target.value)}
+                                required
                             />
-                            {confirmPass && confirmPass !== newPass && (
+                            
+                        </div>
+                        {confirmPass && confirmPass !== newPass && (
                                 <p className="error">Xác nhận mật khẩu mới không khớp</p>
                             )}
-                        </div>
 
                         <div className="btn-group">
                             <button onClick={handleChangePassword}>Cập nhật mật khẩu</button>
@@ -196,7 +216,7 @@ const UserProfile = () => {
 
                             return (
                                 <div className="course-item-pf" key={item.courseId}>
-                                    <img src={course.image} alt={course.name} />
+                                    <img src={course.image.url || course.image} alt={course.name} />
                                     <div>
                                         <h4>{course.name}</h4>
                                         <p>Giá: {course.price}đ</p>

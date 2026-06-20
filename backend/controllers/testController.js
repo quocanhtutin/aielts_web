@@ -621,7 +621,7 @@ export const importPdfPart = async (req, res) => {
     const response = await axios.post(
       "http://localhost:11434/api/generate",
       {
-        model: "gpt-oss:20b-cloud",
+        model: "gemma4:31b-cloud",
         prompt,
         stream: false,
         options: {
@@ -1644,7 +1644,7 @@ export const callTextAI = async ({
   const response = await axios.post(
     "http://localhost:11434/api/chat",
     {
-      model: "gpt-oss:20b-cloud",
+      model: "gemma4:31b-cloud",
 
       stream: false,
 
@@ -1954,7 +1954,7 @@ const processPart = async ({
     await axios.post(
       "http://localhost:11434/api/generate",
       {
-        model: "gpt-oss:20b-cloud",
+        model: "gemma4:31b-cloud",
         prompt,
         stream: false
       }
@@ -2522,27 +2522,6 @@ export const generatePart1Questions = async (
   res
 ) => {
   try {
-    // const { testSkillId } = req.body;
-
-    // if (!testSkillId) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Missing testSkillId"
-    //   });
-    // }
-
-    // const skill =
-    //   await testSkillModel.findById(
-    //     testSkillId
-    //   );
-
-    // if (!skill) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Speaking test not found"
-    //   });
-    // }
-
     const prompt = `
 Generate exactly 4 IELTS Speaking Part 1 questions.
 
@@ -2568,7 +2547,7 @@ Example:
     const ollamaResponse =await axios.post(
       "http://localhost:11434/api/generate",
       {
-        model: "gpt-oss:20b-cloud",
+        model: "gemma4:31b-cloud",
         prompt,
         stream: false
       }

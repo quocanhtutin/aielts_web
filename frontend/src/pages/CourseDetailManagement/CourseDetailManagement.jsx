@@ -1,14 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { StoreContext } from '../../context/StoreContext';
 import { toast } from 'react-toastify';
 import './CourseDetailManagement.css';
 import AddLessonPopup from '../../components/AddLessonPopup/AddLessonPopup';
-import { Trash, CloudOff, CloudBackup } from 'lucide-react'
+import { Trash, CloudOff, CloudBackup, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const CourseDetailManagement = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { url, token, fetchCourseList } = useContext(StoreContext);
     const [course, setCourse] = useState({})
     const [showPopup, setShowPopup] = useState(false);
@@ -50,6 +51,8 @@ const CourseDetailManagement = () => {
                 image: course.image || null
             });
         }
+        console.log('Course data loaded:', course.image);
+        
     }, [course]);
 
     if (!course) {
@@ -69,14 +72,9 @@ const CourseDetailManagement = () => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            const updateData = new FormData();
-            updateData.append('courseId', id)
-            updateData.append('name', formData.name);
-            updateData.append('description', formData.description);
-            updateData.append('price', formData.price);
-            updateData.append('category', formData.category);
-            if (formData.image && formData.image !== course.image) {
-                updateData.append('image', formData.image);
+            const updateData = {
+                courseId: id,
+                ...formData
             }
 
             const res = await axios.post(
@@ -165,25 +163,48 @@ const CourseDetailManagement = () => {
         }
     }
 
+    const uploadToServer = async (file) => {
+		const form = new FormData()
+		form.append('file', file)
+		const headers = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+		const res = await axios.post(`${url}/api/upload`, form, headers)
+		return res.data
+	}
+
+    const handleUploadImage = async (file) => {
+            if (!file) return
+            try {
+                toast.info('Uploading image...')
+                const data = await uploadToServer(file)
+                const imgUrl = data?.url || data?.data || data
+                setFormData(prev => ({ ...prev, image: imgUrl }));
+                toast.success('Image uploaded')
+            } catch (err) {
+                console.error(err)
+                toast.error('Image upload failed')
+            }
+        }
+
     return (
-        <div className="course-detail">
+        <div className="course-detail" style={{display: "flex", flexDirection: "column"}}>
+            <div className="course-detail-header" style={{display:"flex", gap: 8, alignItems: "center", marginBottom: 20, cursor: "pointer"}}>
+                    <p onClick={() => navigate("/admin/coursemanagement")}>Khóa học</p>
+                    <ChevronRight size={16} />
+                    <p>{course.name}</p>
+                </div>
             <form className="course-detail-form" onSubmit={handleUpdate}>
                 <div className="course-detail-left">
                     <label htmlFor="image">
                         <img
                             className="course-detail-image"
-                            src={
-                                formData.image instanceof File
-                                    ? URL.createObjectURL(formData.image)
-                                    : formData.image
-                            }
+                            src={formData.image?.url}
                             alt={formData.name}
                         />
                     </label>
                     <input
                         type="file"
                         id="image"
-                        onChange={onImageChange}
+                        onChange={async (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; await handleUploadImage(f) }}
                         hidden
                     />
 

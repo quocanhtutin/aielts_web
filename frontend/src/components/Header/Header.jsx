@@ -1,8 +1,10 @@
 import React from 'react'
 import './Header.css'
 import { assets } from '../../assets/assets'
+import { useNavigate } from 'react-router-dom'
 
 const Header = () => {
+    const navigate = useNavigate()
     return (
         <div className='header'>
             <div className='header-contents'>
@@ -22,25 +24,25 @@ const Header = () => {
                             <img src={assets.bullet} alt="" />
                             <p>Luyên tập thi với AI mô phỏng thi thật</p>
                         </div>
-                        <button>Bắt đầu ngay</button>
+                        <button onClick={() => navigate('/courses')}>Bắt đầu ngay</button>
                     </div>
                 </div>
                 <div id="captioned-gallery">
                     <figure className="slider">
                         <figure>
-                            <img src={assets.openai} />
+                            <img src={assets.blink2} />
                         </figure>
                         <figure>
-                            <img src={assets.slide1} />
+                            <img src={assets.pic1} />
                         </figure>
                         <figure>
-                            <img src={assets.slide2} />
+                            <img src={assets.blink} />
                         </figure>
                         <figure>
-                            <img src={assets.slide3} />
+                            <img src={assets.pic2} />
                         </figure>
                         <figure>
-                            <img src={assets.slide4} />
+                            <img src={assets.pic3} />
                         </figure>
                     </figure>
                 </div>

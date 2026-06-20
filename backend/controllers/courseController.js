@@ -29,24 +29,24 @@ const uploadToCloudinary = (buffer, folder, originalName) => {
 //add course
 const addCourse = async (req, res) => {
     try {
-        const { name, description, price, category } = req.body;
+        const { name, description, price, category, image } = req.body;
 
         if (!req.files?.image) {
             return res.status(400).json({ success: false, message: "Missing image" });
         }
-        // upload image
-        const original = req.files.image[0].originalname;
-        const imageResult = await uploadToCloudinary(
-            req.files.image[0].buffer,
-            "courses/images",
-            original
-        );
+        // // upload image
+        // const original = req.files.image[0].originalname;
+        // const imageResult = await uploadToCloudinary(
+        //     req.files.image[0].buffer,
+        //     "courses/images",
+        //     original
+        // );
         // lưu thông tin khóa học
         const newCourse = new courseModel({
             name,
             description,
             price,
-            image: imageResult.secure_url,
+            image,
             category
         });
 
@@ -67,7 +67,7 @@ const addCourse = async (req, res) => {
 const addLesson = async (req, res) => {
     try {
 
-        const { courseId, number, title, linkVideo } = req.body
+        const { courseId, number, title, linkVideo, linkPDF={}, linkAudio={}, exercisePdf={} } = req.body
 
         if (!courseId) {
             return res.status(400).json({ success: false, message: "Missing courseId" });
@@ -76,29 +76,32 @@ const addLesson = async (req, res) => {
         let videoUrl = "";
         if (linkVideo) { videoUrl = linkVideo }
 
-        let pdfUrl = "";
-        let exercisePdfUrl = "";
-        let audioUrl = "";
+        let pdfUrl = {};
+        if (linkPDF) { pdfUrl = linkPDF }
+        let exercisePdfUrl = {};
+        if (exercisePdf) { exercisePdfUrl = exercisePdf }
+        let audioUrl = {};
+        if (linkAudio) { audioUrl = linkAudio }
 
-        if (req.files?.pdf) {
-            const original = req.files.pdf[0].originalname;
-            const pdfResult = await uploadToCloudinary(
-                req.files.pdf[0].buffer,
-                "courses/pdfs",
-                original
-            );
-            pdfUrl = pdfResult.secure_url;
-        }
+        // if (req.files?.pdf) {
+        //     const original = req.files.pdf[0].originalname;
+        //     const pdfResult = await uploadToCloudinary(
+        //         req.files.pdf[0].buffer,
+        //         "courses/pdfs",
+        //         original
+        //     );
+        //     pdfUrl = pdfResult.secure_url;
+        // }
 
-        if (req.files?.audio) {
-            const original = req.files.audio[0].originalname;
-            const audioResult = await uploadToCloudinary(
-                req.files.audio[0].buffer,
-                "courses/audios",
-                original
-            );
-            audioUrl = audioResult.secure_url;
-        }
+        // if (req.files?.audio) {
+        //     const original = req.files.audio[0].originalname;
+        //     const audioResult = await uploadToCloudinary(
+        //         req.files.audio[0].buffer,
+        //         "courses/audios",
+        //         original
+        //     );
+        //     audioUrl = audioResult.secure_url;
+        // }
 
         const lessonId = new mongoose.Types.ObjectId();
 
@@ -120,15 +123,15 @@ const addLesson = async (req, res) => {
             return res.status(404).json({ success: false, message: "Course not found" });
         }
 
-        if (req.files?.exercisePdf) {
-            const original = req.files.exercisePdf[0].originalname;
-            const exercisePdfResult = await uploadToCloudinary(
-                req.files.exercisePdf[0].buffer,
-                "courses/exercises",
-                original
-            );
-            exercisePdfUrl = exercisePdfResult.secure_url;
-        }
+        // if (req.files?.exercisePdf) {
+        //     const original = req.files.exercisePdf[0].originalname;
+        //     const exercisePdfResult = await uploadToCloudinary(
+        //         req.files.exercisePdf[0].buffer,
+        //         "courses/exercises",
+        //         original
+        //     );
+        //     exercisePdfUrl = exercisePdfResult.secure_url;
+        // }
 
 
         let answerList = []
@@ -189,24 +192,25 @@ const courseDetail = async (req, res) => {
 
 const courseUpdate = async (req, res) => {
     try {
-        const { courseId, name, description, price, category } = req.body;
+        const { courseId, name, description, price, category, image } = req.body;
 
         const updatedData = {
             ...(name !== undefined && { name }),
             ...(description !== undefined && { description }),
             ...(price !== undefined && { price }),
-            ...(category !== undefined && { category })
+            ...(category !== undefined && { category }),
+            ...(image !== undefined && { image })
         };
 
-        // Nếu có file ảnh mới -> upload và cập nhật image
-        if (req.files?.image?.[0]) {
-            const imageResult = await uploadToCloudinary(
-                req.files.image[0].buffer,
-                "image",
-                "courses/images"
-            );
-            updatedData.image = imageResult.secure_url;
-        }
+        // // Nếu có file ảnh mới -> upload và cập nhật image
+        // if (req.files?.image?.[0]) {
+        //     const imageResult = await uploadToCloudinary(
+        //         req.files.image[0].buffer,
+        //         "image",
+        //         "courses/images"
+        //     );
+        //     updatedData.image = imageResult.secure_url;
+        // }
 
         const updatedCourse = await courseModel.findByIdAndUpdate(courseId, updatedData, { new: true });
 
@@ -223,7 +227,7 @@ const courseUpdate = async (req, res) => {
 
 const lessonUpdate = async (req, res) => {
     try {
-        const { lessonId, number, title, linkVideo } = req.body;
+        const { lessonId, number, title, linkVideo, linkPDF, linkAudio, exercisePdf } = req.body;
 
         if (!lessonId) {
             return res.status(400).json({ success: false, message: "Missing lessonId" });
@@ -232,20 +236,23 @@ const lessonUpdate = async (req, res) => {
         let videoUrlUpdate = "";
         if (linkVideo) { videoUrlUpdate = linkVideo }
 
-        let pdfUrlUpdate = "";
-        let exercisePdfUrlUpdate = "";
-        let audioUrl = "";
+        let pdfUrlUpdate = {};
+        if (linkPDF) { pdfUrlUpdate = linkPDF }
+        let exercisePdfUrlUpdate = {};
+        if (exercisePdf) { exercisePdfUrlUpdate = exercisePdf }
+        let audioUrl = {};
+        if (linkAudio) { audioUrl = linkAudio }
 
 
-        if (req.files?.pdf) {
-            const original = req.files.pdf[0].originalname;
-            const pdfResult = await uploadToCloudinary(
-                req.files.pdf[0].buffer,
-                "courses/pdfs",
-                original
-            );
-            pdfUrlUpdate = pdfResult.secure_url;
-        }
+        // if (req.files?.pdf) {
+        //     const original = req.files.pdf[0].originalname;
+        //     const pdfResult = await uploadToCloudinary(
+        //         req.files.pdf[0].buffer,
+        //         "courses/pdfs",
+        //         original
+        //     );
+        //     pdfUrlUpdate = pdfResult.secure_url;
+        // }
 
         // Chỉ update field nào có trong request
         const updateFields = {};
@@ -270,30 +277,30 @@ const lessonUpdate = async (req, res) => {
             return res.status(404).json({ success: false, message: "Lesson not found" });
         }
 
-        if (req.files?.exercisePdf) {
-            const original = req.files.exercisePdf[0].originalname;
-            const exercisePdfResult = await uploadToCloudinary(
-                req.files.exercisePdf[0].buffer,
-                "courses/exercises",
-                original
-            );
-            exercisePdfUrlUpdate = exercisePdfResult.secure_url;
-            await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
-                exercisePdf: exercisePdfUrlUpdate
-            })
-        }
-        if (req.files?.audio) {
-            const original = req.files.audio[0].originalname;
-            const audioResult = await uploadToCloudinary(
-                req.files.audio[0].buffer,
-                "courses/audios",
-                original
-            );
-            audioUrl = audioResult.secure_url;
-            await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
-                linkAudio: audioUrl
-            })
-        }
+        // if (req.files?.exercisePdf) {
+        //     const original = req.files.exercisePdf[0].originalname;
+        //     const exercisePdfResult = await uploadToCloudinary(
+        //         req.files.exercisePdf[0].buffer,
+        //         "courses/exercises",
+        //         original
+        //     );
+        //     exercisePdfUrlUpdate = exercisePdfResult.secure_url;
+        //     await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
+        //         exercisePdf: exercisePdfUrlUpdate
+        //     })
+        // }
+        // if (req.files?.audio) {
+        //     const original = req.files.audio[0].originalname;
+        //     const audioResult = await uploadToCloudinary(
+        //         req.files.audio[0].buffer,
+        //         "courses/audios",
+        //         original
+        //     );
+        //     audioUrl = audioResult.secure_url;
+        //     await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
+        //         linkAudio: audioUrl
+        //     })
+        // }
         let answerList = []
 
         if (req.body.questions) {
@@ -305,7 +312,9 @@ const lessonUpdate = async (req, res) => {
         }
 
         const updatedExercise = await exerciseModel.findOneAndUpdate({ lessonId: lessonId }, {
-            answerList: answerList
+            answerList: answerList,
+            exercisePdf: exercisePdfUrlUpdate,
+            linkAudio: audioUrl,
         })
 
         if (!updatedExercise) {

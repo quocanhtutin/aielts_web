@@ -3,7 +3,7 @@
 	max-width:500px;
 	padding: 20px;
 	background: linear-gradient(rgb(36, 106, 164), rgb(27, 79, 121));
-	border-radius: 10px;
+	border-radius: 4px;
 	box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 	display: flex;
 	flex-direction: column;
@@ -78,7 +78,7 @@
 .vocab-form__input {
 	padding: 8px;
 	border: 1px solid #ddd;
-	border-radius: 6px;
+	border-radius: 4px;
 	font-size: 14px;
 	transition: 0.2s;
 	width: 100%;
@@ -100,7 +100,7 @@
 .vocab-form__dropdown-btn {
 	padding: 8px;
 	border: 1px solid #ddd;
-	border-radius: 6px;
+	border-radius: 4px;
 	cursor: pointer;
 	background: white;
 }
@@ -111,7 +111,7 @@
 	left: 0;
 	width: 100%;
 	background: white;
-	border-radius: 6px;
+	border-radius: 4px;
 	box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 	max-height: 200px;
 	overflow-y: auto;

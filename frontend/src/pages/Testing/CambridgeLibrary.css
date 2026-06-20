@@ -1,8 +1,8 @@
 .camlib-container {
   padding: 60px 100px 30px 100px;
   background: #fff;
-  min-height: 1000px;
-  background: linear-gradient(rgba(36, 106, 164, 0.724), white, white, white, white, white, white, rgba(36, 106, 164, 0.788) );
+  min-height: 100vh;
+  background: linear-gradient(rgba(36, 106, 164, 0.724), white, white, white, white, white, white, white);
 }
 
 .camlib-title {
@@ -68,6 +68,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding-top: 10px;
 }
 
 .camlib-progress {

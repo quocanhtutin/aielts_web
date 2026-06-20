@@ -11,7 +11,7 @@
 }
 .user-section button{
     padding: 5px 8px;
-    border-radius: 10px;
+    border-radius: 4px;
     border: none;
 }
 .user-section .detail-btn{
@@ -37,7 +37,7 @@
 }
 .admin-section button{
     padding: 5px 8px;
-    border-radius: 10px;
+    border-radius: 4px;
     border: none;
 }
 
@@ -62,7 +62,7 @@
 
 .list-table {
   margin-top: 10px;
-  border-radius: 20px;
+  border-radius: 4px;
   border: 1.5px solid rgb(36, 106, 164);
   overflow: hidden;
 }

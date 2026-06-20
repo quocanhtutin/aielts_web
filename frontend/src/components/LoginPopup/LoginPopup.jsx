@@ -4,6 +4,7 @@ import { assets } from '../../assets/assets'
 import { StoreContext } from '../../context/StoreContext.jsx'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const LoginPopup = ({ setShowLogin }) => {
 
@@ -16,6 +17,8 @@ const LoginPopup = ({ setShowLogin }) => {
         password: "",
         phone: ""
     })
+
+    const [error, setError] = useState({})
 
     const navigate = useNavigate()
 
@@ -49,7 +52,7 @@ const LoginPopup = ({ setShowLogin }) => {
             navigate("/")
         }
         else {
-            alert(response.data.message)
+            toast.error(response.data.message || "Đã có lỗi xảy ra")
         }
 
     }
@@ -76,10 +79,10 @@ const LoginPopup = ({ setShowLogin }) => {
                     <input name='password' onChange={onChangeHandler} value={data.password} type="password" placeholder='Password' required />
                 </div>
                 <button type='submit'>{currState === 'Sign up' ? 'Create account' : 'Login'}</button>
-                <div className="login-popup-condition">
+                {/* <div className="login-popup-condition">
                     <input type='checkbox' required />
                     <p>By continuing, I agree to the terms of use & privacy policy.</p>
-                </div>
+                </div> */}
                 {currState === "Login"
                     ?
                     <p>Create a new Account? <span onClick={() => setCurrState("Sign up")}>Click here</span></p>

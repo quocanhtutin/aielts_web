@@ -83,7 +83,8 @@
   flex: 1;
   padding: 8px;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border-radius: 6px; 
+  outline:auto
 }
 
 /* SIDEBAR */
@@ -383,13 +384,15 @@
   display: flex;
   margin-top: 10px;
   gap: 8px;
+  outline: none;
 }
 
 .chat-input input {
   flex: 1;
   padding: 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid #ccc;
+  outline:none;
 }
 
 .chat-input button {
@@ -397,7 +400,7 @@
   color: white;
   padding: 8px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -405,7 +408,7 @@
 .dict-search-input {
   width: 100%;
   padding: 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid #ccc;
   font-size: 14px;
   outline:none;
@@ -427,7 +430,7 @@
   background: #059669;
   color: #fff;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   border: none;
   cursor: pointer;
 }
@@ -456,3 +459,11 @@
   color: #333;
   position: relative;
 }
+
+/* Typing dots animation for assistant pending message */
+.typing-dots { display: inline-flex; gap: 6px; align-items: flex-end; }
+.typing-dots span { width: 6px; height: 6px; background: #9ca3af; border-radius: 50%; display: inline-block; transform: translateY(0); animation: typingBounce 0.8s infinite; }
+.typing-dots span:nth-child(1) { animation-delay: 0s; }
+.typing-dots span:nth-child(2) { animation-delay: 0.12s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.24s; }
+@keyframes typingBounce { 0% { transform: translateY(0); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0); } }

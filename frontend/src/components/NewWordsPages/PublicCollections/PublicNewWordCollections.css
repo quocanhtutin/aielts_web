@@ -160,9 +160,9 @@
 
 /* display */
 .public_display{
-    padding: 60px 0 60px 0;
-    min-height: 1000px;
-  background: linear-gradient(rgba(36, 106, 164, 0.724), white, white, white, white, white, white, rgba(36, 106, 164, 0.788) );
+    padding: 60px 0 30px 0;
+    min-height: 100vh;
+  background: linear-gradient(rgba(36, 106, 164, 0.724), white, white, white, white, white, white, white);
 
 }
 .public_display_list{

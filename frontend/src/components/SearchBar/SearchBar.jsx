@@ -14,7 +14,7 @@ const SearchBar = ({ onSearch }) => {
         internal = setTimeout(()=>{
             setSearchTerm(event.target.value);
             onSearch(event.target.value)
-        }, 300)
+        }, 500)
     };
 
     const handleSubmit = (event) => {

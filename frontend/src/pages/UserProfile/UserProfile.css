@@ -10,7 +10,7 @@
     flex: 1;
     background: #fff;
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 4px;
     border: 1.5px solid rgb(36, 106, 164);
     max-width: 45%;
     height: fit-content;
@@ -21,7 +21,7 @@
     color: white;
     border: none;
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
     transition: background 0.2s ease;
@@ -53,8 +53,8 @@
 
 .profile-field input, .change-password input {
     width: 60%;
-    padding: 8px 10px;
-    border-radius: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
     border: 1px solid #898989;
     outline: none;
     font-size: 15px;
@@ -83,6 +83,8 @@
 .error {
     color: red;
     font-size: 13px;
+    justify-self: flex-end;
+    margin-top: 4px;
 }
 
 .course-item-pf {

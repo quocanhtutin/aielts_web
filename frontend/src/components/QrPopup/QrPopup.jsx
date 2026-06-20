@@ -52,7 +52,7 @@ const QrPopup = ({ qrImageUrl, expireAt, onClose, onWaitPayment }) => {
                 {status === "success" && (
                     <div className="success-check">
                         <div className="loader"></div>
-                        <p className='success-text'>Đăng xử lý ...</p>
+                        <p className='success-text'>Đang xử lý ...</p>
                     </div>
                 )}
             </div>

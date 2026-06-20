@@ -6,10 +6,11 @@ import "./OwnedCourse.css";
 import { toast } from "react-toastify";
 import LessonSideNav from "../../components/LessonSideNav/LessonSideNav";
 import { assets } from "../../assets/assets";
+import { MessageSquare, BookOpen, X } from "lucide-react";
 
 const OwnedCourse = () => {
     const { id: courseId } = useParams();
-    const { url, token, courses } = useContext(StoreContext);
+    const { url, token, courses, fetchOwnedTopics, topicWithWord } = useContext(StoreContext);
 
     const [loading, setLoading] = useState(true);
     const [courseInfo, setCourseInfo] = useState(null);
@@ -25,7 +26,16 @@ const OwnedCourse = () => {
 
     const [chatInput, setChatInput] = useState("");
     const [chatMessages, setChatMessages] = useState([]);
+    const [chatOpen, setChatOpen] = useState(false);
     const chatBoxRef = useRef(null);
+
+    const [dictOpen, setDictOpen] = useState(false);
+    const [dictQuery, setDictQuery] = useState("");
+    const [dictResult, setDictResult] = useState(null);
+    const [dictLoading, setDictLoading] = useState(false);
+    const [dictNotFound, setDictNotFound] = useState(false);
+    const dictTimerRef = useRef(null);
+    const dictControllerRef = useRef(null);
 
     const [recordingStates, setRecordingStates] = useState({});   // order => blobUrl
     const [isRecordingOrder, setIsRecordingOrder] = useState(null);
@@ -145,6 +155,118 @@ const OwnedCourse = () => {
         }
     }, [chatMessages]);
 
+    const toggleDict = () => {
+        setDictOpen(prev => {
+            const next = !prev;
+            if (next) {
+                setChatOpen(false);
+            }
+            return next;
+        });
+    };
+
+    const handleDictInput = (value) => {
+        setDictQuery(value);
+        setDictNotFound(false);
+        setDictResult(null);
+        if (dictTimerRef.current) clearTimeout(dictTimerRef.current);
+        if (!value.trim()) {
+            setDictLoading(false);
+            return;
+        }
+        dictTimerRef.current = setTimeout(() => fetchDict(value), 500);
+    };
+
+    const fetchDict = async (word) => {
+        if (dictControllerRef.current) dictControllerRef.current.abort();
+        const controller = new AbortController();
+        dictControllerRef.current = controller;
+        setDictLoading(true);
+        setDictNotFound(false);
+        try {
+            const res = await axios.get(`${url}/api/flashcard/suggest`, {
+                params: { q: word },
+                signal: controller.signal
+            });
+            const data = res.data?.data;
+            if (!data || data.length === 0) {
+                setDictNotFound(true);
+                setDictResult(null);
+            } else {
+                const item = data[0];
+                const normalized = {
+                    word: item.word || word,
+                    type: item.type || item.pos || "",
+                    pronunciation: item.pronunciation || item.pron || "",
+                    definition: item.definition || item.def || "",
+                    exampleSentence: item.exampleSentence || item.example || "",
+                    synonym: item.synonym || item.synonyms || [],
+                    opposite: item.opposite || item.opposites || [],
+                    description: item.description || ""
+                };
+                setDictResult(normalized);
+            }
+        } catch (err) {
+            if (err.name === 'CanceledError' || err?.code === 'ERR_CANCELED') return;
+            console.error(err);
+            setDictNotFound(true);
+            setDictResult(null);
+        } finally {
+            setDictLoading(false);
+        }
+    };
+
+    const saveDictWord = async () => {
+        if (!dictResult) return;
+        if (!token) {
+            toast.error('Bạn cần đăng nhập để lưu từ');
+            return;
+        }
+
+        try {
+            let topicId = topicWithWord && topicWithWord.length ? topicWithWord[0]._id : null;
+            if (!topicId) {
+                if (!fetchOwnedTopics) {
+                    toast.error('Không thể tạo bộ sưu tập từ');
+                    return;
+                }
+                const resTopic = await axios.post(`${url}/api/flashcard/topic`, { topic: 'My collection' }, { headers: { Authorization: `Bearer ${token}` } });
+                if (resTopic.data?.success) {
+                    topicId = resTopic.data.data._id;
+                    await fetchOwnedTopics();
+                }
+            }
+
+            if (!topicId) {
+                toast.error('Không thể tạo bộ sưu tập');
+                return;
+            }
+
+            const payload = {
+                word: dictResult.word,
+                type: dictResult.type,
+                pronunciation: dictResult.pronunciation,
+                definition: dictResult.definition,
+                exampleSentence: dictResult.exampleSentence,
+                synonym: Array.isArray(dictResult.synonym) ? dictResult.synonym : (dictResult.synonym ? dictResult.synonym.split(",").map(s => s.trim()) : []),
+                opposite: Array.isArray(dictResult.opposite) ? dictResult.opposite : (dictResult.opposite ? dictResult.opposite.split(",").map(s => s.trim()) : []),
+                description: dictResult.description || ""
+            };
+
+            const res = await axios.post(`${url}/api/flashcard/word/${topicId}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            if (res.data?.success) {
+                toast.success('Lưu từ thành công');
+                if (fetchOwnedTopics) await fetchOwnedTopics();
+                setDictOpen(false);
+            } else {
+                toast.error(res.data?.message || 'Lưu từ thất bại');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Lỗi khi lưu từ');
+        }
+    };
+
     if (loading) return <div>Đang tải...</div>;
 
     const handleAnswerChange = (order, value) => {
@@ -257,6 +379,11 @@ const OwnedCourse = () => {
 
         const userMessage = { role: "user", content: chatInput };
         setChatMessages(prev => [...prev, userMessage]);
+
+        const pendingId = `pending-${Date.now()}`;
+        const pendingMsg = { id: pendingId, role: 'assistant', content: '...', pending: true };
+        setChatMessages(prev => [...prev, pendingMsg]);
+
         const sending = chatInput;
         setChatInput("");
 
@@ -267,18 +394,14 @@ const OwnedCourse = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             )
 
-            // Ollama trả về dạng { message: "...", ... }
             const aiContent = res.data?.message.content || res?.data?.response || JSON.stringify(res.data);
-
-            const aiMessage = { role: "assistant", content: aiContent };
-            setChatMessages(prev => [...prev, aiMessage]);
+            setChatMessages(prev => prev.map(m => m.id === pendingId ? { ...m, content: aiContent, pending: false } : m));
 
         } catch (err) {
             console.error(err);
-            setChatMessages(prev => [
-                ...prev,
-                { role: "assistant", content: "Lỗi khi gọi AI." }
-            ]);
+            setChatMessages(prev => prev.map(m => m.id === pendingId ? { ...m, content: 'Lỗi khi gọi AI.', pending: false } : m));
+        } finally {
+            setTimeout(() => { if (chatBoxRef.current) chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight; }, 50);
         }
     };
 
@@ -480,24 +603,24 @@ const OwnedCourse = () => {
                     ) : null}
 
 
-                    {activeLesson?.linkPDF ? (
+                    {activeLesson?.linkPDF && activeLesson.linkPDF !== {} ? (
                         <div className="file-row">
                             <h4>PDF bài giảng {activeLesson.title}</h4>
-                            <a href={activeLesson.linkPDF} target="_blank" rel="noopener noreferrer">Mở PDF</a>
+                            <a href={activeLesson.linkPDF.url||activeLesson.linkPDF} target="_blank" rel="noopener noreferrer">Mở PDF</a>
                         </div>
                     ) : null}
 
-                    {activeLesson?.exercise?.exercisePdf ? (
+                    {activeLesson?.exercise?.exercisePdf && activeLesson.exercise.exercisePdf !== {} ? (
                         <div className="exercise-pdf">
                             <h4>PDF bài tập</h4>
-                            <iframe title="exercise-pdf" src={activeLesson.exercise.exercisePdf} allow="fullscreen" style={{ width: "100%", height: 400, border: "none" }} />
+                            <iframe title="exercise-pdf" src={activeLesson.exercise.exercisePdf.url || activeLesson.exercise.exercisePdf} allow="fullscreen" style={{ width: "100%", height: 400, border: "none" }} />
                         </div>
                     ) : null}
 
-                    {courseInfo.category === "Listening" && activeLesson?.exercise?.linkAudio ? (
+                    {courseInfo.category === "Listening" && activeLesson?.exercise?.linkAudio && activeLesson.exercise.linkAudio !== {} ? (
                         <div className="media-block audio-block">
                             <h4>Audio bài tập</h4>
-                            <audio controls src={activeLesson.exercise.linkAudio} />
+                            <audio controls src={activeLesson.exercise.linkAudio.url || activeLesson.exercise.linkAudio} />
                         </div>
                     ) : null}
                     <div className="answer-grid">
@@ -599,31 +722,95 @@ const OwnedCourse = () => {
                 </div>
 
 
-                <div className="card chat-box">
-                    <h4>Chat với AI</h4>
+            </aside>
 
-                    <div className="chat-messages" ref={chatBoxRef}>
-                        {chatMessages.map((msg, idx) => (
-                            <div key={idx} className={`chat-msg ${msg.role}`}>
-                                <div className="bubble">{msg.content}</div>
-                            </div>
-                        ))}
-                    </div>
+            <div className="floating-actions">
+                <button className="fab" style={{ backgroundColor: '#c7d2fe' }} title="Tra từ mới" onClick={toggleDict}>
+                    <BookOpen />
+                </button>
+                <button className="fab" style={{ backgroundColor: '#e7e765' }} title="Chat AI" onClick={() => {
+                    const next = !chatOpen;
+                    setChatOpen(next);
+                    if (next) setDictOpen(false);
+                }}>
+                    <MessageSquare />
+                </button>
+            </div>
 
-                    <div className="chat-input">
-                        <input
-                            type="text"
-                            value={chatInput}
-                            onChange={(e) => setChatInput(e.target.value)}
-                            placeholder="Nhập tin nhắn..."
-                            onKeyDown={(e) => e.key === "Enter" && sendChat()}
-                        />
-                        <button onClick={sendChat}>Gửi</button>
+            {chatOpen && (
+                <div className="chat-popup">
+                    <div className="card chat-box">
+                        <h4 style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                            <span>Chat với AI</span>
+                            <X style={{cursor:'pointer'}} onClick={() => setChatOpen(false)} />
+                        </h4>
+                        <div className="chat-messages" ref={chatBoxRef}>
+                                {chatMessages.map((msg, idx) => (
+                                        <div key={msg.id || idx} className={`chat-msg ${msg.role}`}>
+                                            <div className="bubble">
+                                                {msg.pending ? (
+                                                    <span className="typing-dots"><span></span><span></span><span></span></span>
+                                                ) : (
+                                                    msg.content
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                        </div>
+                        <div className="chat-input">
+                            <input
+                                type="text"
+                                value={chatInput}
+                                onChange={(e) => setChatInput(e.target.value)}
+                                placeholder="Nhập tin nhắn..."
+                                onKeyDown={(e) => e.key === "Enter" && sendChat()}
+                            />
+                            <button onClick={sendChat}>Gửi</button>
+                        </div>
                     </div>
                 </div>
+            )}
 
-
-            </aside>
+            {dictOpen && (
+                <div className="chat-popup">
+                    <div className="card chat-box">
+                        <h4 style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                            <span>Tra từ mới</span>
+                            <X style={{cursor:'pointer'}} onClick={() => setDictOpen(false)} />
+                        </h4>
+                        <div style={{marginTop:6}}>
+                            <input className="dict-search-input" value={dictQuery} onChange={(e) => handleDictInput(e.target.value)} placeholder="Nhập từ cần tra..." />
+                        </div>
+                        <div style={{marginTop:10, flex:1, display:'flex', flexDirection:'column'}}>
+                            {dictLoading ? (
+                                <div>
+                                    <div className="skeleton-line" style={{height:18, width:'70%', marginBottom:8}} />
+                                    <div className="skeleton-line" style={{height:14, width:'50%', marginBottom:6}} />
+                                    <div className="skeleton-line" style={{height:12, width:'90%', marginBottom:6}} />
+                                </div>
+                            ) : (!dictResult && dictNotFound) ? (
+                                <div style={{color:'#666', fontSize:13}}>Không tìm thấy kết quả.</div>
+                            ) : dictResult ? (
+                                <div style={{fontSize:13, lineHeight:1.4}}>
+                                    <div style={{fontWeight:700, fontSize:16, marginBottom:6}}>{dictResult.word}</div>
+                                    <div style={{fontSize:12, color:'#444', marginBottom:6}}>{dictResult.type} {dictResult.pronunciation ? `· ${dictResult.pronunciation}` : ''}</div>
+                                    <div style={{fontSize:13, color:'#333', marginBottom:6}}>{dictResult.definition}</div>
+                                    {dictResult.exampleSentence && <div style={{fontSize:12, color:'#666', marginBottom:6}}>Example: {dictResult.exampleSentence}</div>}
+                                    {dictResult.synonym && dictResult.synonym.length > 0 && <div style={{fontSize:12, color:'#666', marginBottom:6}}>Synonyms: {Array.isArray(dictResult.synonym) ? dictResult.synonym.join(', ') : dictResult.synonym}</div>}
+                                    {dictResult.opposite && dictResult.opposite.length > 0 && <div style={{fontSize:12, color:'#666', marginBottom:6}}>Opposites: {Array.isArray(dictResult.opposite) ? dictResult.opposite.join(', ') : dictResult.opposite}</div>}
+                                    {dictResult.description && <div style={{fontSize:12, color:'#666', marginTop:4}}>{dictResult.description}</div>}
+                                </div>
+                            ) : (
+                                <div style={{color:'#666', fontSize:13}}>Nhập từ để tra nghĩa...</div>
+                            )}
+                        </div>
+                        <div style={{display:'flex', gap:8, marginTop:10, justifyContent:'flex-end'}}>
+                            <button className="btn" onClick={() => setDictOpen(false)}>Đóng</button>
+                            <button className="btn" onClick={saveDictWord} disabled={!dictResult || dictLoading}>Lưu từ</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

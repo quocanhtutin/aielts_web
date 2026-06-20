@@ -2,8 +2,6 @@
     display: flex;
     justify-content: center;
     gap: 40px;
-    margin-top: 50px;
-    padding: 50px 100px;
     width: 100%;
     font-family: 'Inter', sans-serif;
 }
@@ -11,7 +9,7 @@
 .payment-left, .payment-right {
     background: #fff;
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 4px;
     width: 48%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -51,12 +49,12 @@
 .payment-right button {
     margin-top: 25px;
     width: 100%;
-    padding: 12px;
+    padding: 6px 8px;
     font-size: 17px;
     background-color: #2b7bff;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
     transition: 0.25s;
     font-weight: 500;

@@ -29,7 +29,7 @@ const ManagementSidebar = ({title, sidebarData, handleAddCategory, linkSelectIte
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedSearch(searchText);
-        }, 300);
+        }, 500);
 
         return () => clearTimeout(handler);
     }, [searchText]);

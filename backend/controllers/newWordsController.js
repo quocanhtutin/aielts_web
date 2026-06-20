@@ -475,7 +475,6 @@ Rules:
 - NEVER miss comma and "", not use ' '
 - Each property must be separated by comma
 
-If you cannot complete, still return valid JSON.
 `;
 
   const content = await suggestWord(prompt);
@@ -492,46 +491,12 @@ If you cannot complete, still return valid JSON.
     return [];
   };
 
-//   // 1. fix dấu ' bị lệch ở cuối string
-// jsonText = jsonText.replace(
-//   /"([^"]*)'(?=\s*[,}\]])/g,
-//   '"$1"'
-// );
-
-// // 2. fix pronunciation /.../ bị lỗi
-// jsonText = jsonText.replace(
-//   /:\s*\/([^\/"]*)\/(?=\s*[,}\]])/g,
-//   ': "/$1/"'
-// );
-
-// // 3. fix value thiếu dấu " (QUAN TRỌNG)
-// jsonText = jsonText.replace(
-//   /:\s*([^"\[\{][^,\}\]\n]*)/g,
-//   (match, value) => `: "${value.trim()}"`
-// );
-
-// // 4. remove trailing comma
-// jsonText = jsonText.replace(
-//   /,\s*([}\]])/g,
-//   "$1"
-// );
-
   return JSON.parse(jsonText);
   
   } catch (err) {
     console.error("Parse AI error:", err.message);
     return [];
   }
-
-  // const results = [];
-
-  // for (let i = 0; i < amount; i++) {
-  //   const content = await suggestWord(prompt);
-
-  //   const obj = JSON.parse(content);
-  //   results.push(obj);
-  // }
-  // return results;
 };
 
 const extractJSONArray = (text) => {
@@ -666,21 +631,4 @@ export const getGenerateStatus = async (req, res) => {
   }
 
   return res.json(job);
-};
-
-export const startAIStream = async (req, res) => {
-  const { topicId, amount, socketId } = req.body;
-
-  const io = req.app.get("io"); 
-  const socket = io.sockets.sockets.get(socketId);
-
-  if (!socket) {
-    return res.status(400).json({ error: "Socket not found" });
-  }
-
-  const topicData = await topic.findById(topicId);
-
-  streamAIWords(socket, topicData.topic, amount);
-
-  res.json({ success: true });
 };

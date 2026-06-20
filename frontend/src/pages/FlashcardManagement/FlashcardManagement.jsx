@@ -70,7 +70,7 @@ const FlashcardManagement = () => {
   useEffect(() => {
       const timer = setTimeout(() => {
           setDebouncedSearch(searchText)
-      }, 300)
+      }, 500)
 
       return () => clearTimeout(timer)
   }, [searchText])

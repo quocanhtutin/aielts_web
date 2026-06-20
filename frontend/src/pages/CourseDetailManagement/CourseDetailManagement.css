@@ -4,9 +4,9 @@
 }
 
 .course-detail-form input, .course-detail-form textarea, .course-detail-form select{
-    padding: 10px;
+    padding: 6px 8px;
     width: 100%;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid #898989;
     font-size: 16px;
 }
@@ -18,7 +18,7 @@
     min-width: 30%;
     margin-right: 5%;
     padding: 27px;
-    border-radius: 20px;
+    border-radius: 12px;
     border: 1.5px solid rgb(36, 106, 164);
     color: #6d6d6d;
 }
@@ -89,11 +89,11 @@
 }
 
 .update-btn {
-  padding: 10px 16px;
+  padding: 6px 8px;
   background: rgb(36, 106, 164);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
   margin-top: 5px;
@@ -143,9 +143,9 @@
 
 .lesson-actions button {
   margin-left: 8px;
-  padding: 6px 10px;
+  padding: 6px 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -173,8 +173,8 @@
 }
 
 .add-lesson-btn{
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: 4px;
+  padding: 6px 8px;
   cursor: pointer;
   margin-right: 6px;
   border: none;
@@ -182,4 +182,7 @@
 
 .add-lesson-btn:hover{
   background-color: rgb(212, 212, 212);
+}
+.course-detail-header p:hover{
+  opacity: 0.8;
 }

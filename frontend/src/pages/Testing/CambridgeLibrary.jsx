@@ -5,8 +5,9 @@ import { Pencil, Clock, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { StoreContext } from '../../context/StoreContext'
+import Footer from '../../components/Footer/Footer';
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 3;
 
 const CambridgeLibrary = () => {
 
@@ -21,6 +22,8 @@ const CambridgeLibrary = () => {
   });
 
   const [cambridgeData, setCambridgeData] = useState([]);
+  const [cambridgePage, setCambridgePage] = useState(1);
+  const [forecastPage, setForecastPage] = useState(1);
 
   const handleOpenPopup = (skill, id) => {
     setPopup({ open: true, skill, id });
@@ -40,13 +43,18 @@ const CambridgeLibrary = () => {
     setPopup({ open: false, skill: null, id: null });
   };
 
-  const totalPages = Math.ceil(cambridgeData.length / ITEMS_PER_PAGE);
+  // split collections by type
+  const cambridgeCollections = cambridgeData.filter(c => (c.type || 'Cambridge') === 'Cambridge');
+  const forecastCollections = cambridgeData.filter(c => (c.type || 'Cambridge') === 'Forecast');
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentData = cambridgeData.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+  const cambridgeTotalPages = Math.max(1, Math.ceil(cambridgeCollections.length / ITEMS_PER_PAGE));
+  const forecastTotalPages = Math.max(1, Math.ceil(forecastCollections.length / ITEMS_PER_PAGE));
+
+  const cambridgeStart = (cambridgePage - 1) * ITEMS_PER_PAGE;
+  const cambridgeCurrentData = cambridgeCollections.slice(cambridgeStart, cambridgeStart + ITEMS_PER_PAGE);
+
+  const forecastStart = (forecastPage - 1) * ITEMS_PER_PAGE;
+  const forecastCurrentData = forecastCollections.slice(forecastStart, forecastStart + ITEMS_PER_PAGE);
 
   useEffect(() => {
     const fetchCambridgeData = async () => {
@@ -70,6 +78,7 @@ const CambridgeLibrary = () => {
 
 
   return (
+    <div style={{ width:"100vw", height:"fit-content"}}>
     <div className="camlib-container">
       <h1 className="camlib-title">
         Thư viện đề <span>Cambridge IELTS Academic</span>
@@ -82,43 +91,103 @@ const CambridgeLibrary = () => {
       
       <div className="camlib-book">
         <div className="camlib-test-grid">
-          {currentData.map((test) => (
+          {cambridgeCurrentData.map((test) => (
             <div key={test._id} className="camlib-card">
-              <div className="camlib-card-header">
-                {test.title}
-              </div>
+              <div className="camlib-card-header">{test.title}</div>
 
               <div className="camlib-card-body">
-                <div className="camlib-progress">0%</div>
-                {test.skills.map((skill) => (
-                  <button
-                    key={skill._id}
-                    className={`camlib-btn camlib-btn-${skill.type}`}
-                    onClick={() => handleOpenPopup(skill.type, skill._id)}
-                  >
-                    {skill.type.charAt(0).toUpperCase() + skill.type.slice(1)}
-                  </button>
-                ))}
+                {/* <div className="camlib-progress">0%</div> */}
+                {[...test.skills]
+                  .sort((a, b) => {
+                    const order = ['listening', 'reading', 'writing', 'speaking'];
+                    const ai = order.indexOf((a.type || '').toLowerCase());
+                    const bi = order.indexOf((b.type || '').toLowerCase());
+                    const aval = ai === -1 ? 99 : ai;
+                    const bval = bi === -1 ? 99 : bi;
+                    return aval - bval;
+                  })
+                  .map((skill) => (
+                    <button
+                      key={skill._id}
+                      className={`camlib-btn camlib-btn-${skill.type}`}
+                      onClick={() => handleOpenPopup(skill.type, skill._id)}
+                    >
+                      {skill.type.charAt(0).toUpperCase() + skill.type.slice(1)}
+                    </button>
+                  ))}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* PAGINATION */}
+      {/* PAGINATION (Cambridge) */}
       <div className="camlib-pagination">
-        {Array.from({ length: totalPages }, (_, index) => (
+        {Array.from({ length: cambridgeTotalPages }, (_, index) => (
           <button
             key={index}
             className={`camlib-page-btn ${
-              currentPage === index + 1 ? "active" : ""
+              cambridgePage === index + 1 ? "active" : ""
             }`}
-            onClick={() => setCurrentPage(index + 1)}
+            onClick={() => setCambridgePage(index + 1)}
           >
             {index + 1}
           </button>
         ))}
       </div>
+
+      {/* FORECAST section */}
+      {forecastCollections.length > 0 && (
+        <>
+          <h2 style={{ marginTop: 28, marginBottom: 20 }}>Bộ đề dự đoán</h2>
+          <div className="camlib-book">
+            <div className="camlib-test-grid">
+              {forecastCurrentData.map((test) => (
+                <div key={test._id} className="camlib-card">
+                  <div className="camlib-card-header">{test.title}</div>
+
+                  <div className="camlib-card-body">
+                    {/* <div className="camlib-progress">0%</div> */}
+                    {[...test.skills]
+                      .sort((a, b) => {
+                        const order = ['listening', 'reading', 'writing', 'speaking'];
+                        const ai = order.indexOf((a.type || '').toLowerCase());
+                        const bi = order.indexOf((b.type || '').toLowerCase());
+                        const aval = ai === -1 ? 99 : ai;
+                        const bval = bi === -1 ? 99 : bi;
+                        return aval - bval;
+                      })
+                      .map((skill) => (
+                        <button
+                          key={skill._id}
+                          className={`camlib-btn camlib-btn-${skill.type}`}
+                          onClick={() => handleOpenPopup(skill.type, skill._id)}
+                        >
+                          {skill.type.charAt(0).toUpperCase() + skill.type.slice(1)}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PAGINATION (Forecast) */}
+          <div className="camlib-pagination">
+            {Array.from({ length: forecastTotalPages }, (_, index) => (
+              <button
+                key={index}
+                className={`camlib-page-btn ${
+                  forecastPage === index + 1 ? "active" : ""
+                }`}
+                onClick={() => setForecastPage(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
       {popup.open && (
         <div className="mode-popup-overlay">
           <div className="mode-popup">
@@ -160,6 +229,8 @@ const CambridgeLibrary = () => {
         </div>
       )}
     </div>  
+    <Footer />
+    </div>
   );
 };
 

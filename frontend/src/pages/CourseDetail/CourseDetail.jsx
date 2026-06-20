@@ -4,6 +4,7 @@ import { StoreContext } from '../../context/StoreContext'
 import './CourseDetail.css'
 import Reveal from '../../components/Reveal/Reveal.jsx'
 import Footer from '../../components/Footer/Footer.jsx'
+import { Trash, CloudOff, CloudBackup, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const CourseDetail = ({ setShowLogin }) => {
     const { id } = useParams()
@@ -23,31 +24,38 @@ const CourseDetail = ({ setShowLogin }) => {
 
 
     return (
-        <Reveal>
-            <div className='course-detail'>
-                <div className='course-detail-left'>
-                    <img className='course-detail-image' src={course.image} alt={course.name} />
-                    <h2>{course.name}</h2>
-                    <p><strong>Danh mục:</strong> {course.category}</p>
-                    <p><strong>Giá:</strong> {course.price} đ</p>
-                    {ownedAndActive ? (
-                        <button className='register-button' onClick={() => navigate(`/user/ownedCourse/${id}`)}>
-                            Tiếp tục học
-                        </button>
-                    ) : (
-                        <button className='register-button' onClick={handleRegister}>
-                            Đăng ký
-                        </button>
-                    )}
-
+        <div>
+            <div className='course-detail' style={{ display: "flex", flexDirection: "column" }}>
+                <div className="course-detail-header" style={{display:"flex", gap: 8, alignItems: "center", marginBottom: 20, cursor: "pointer"}}>
+                    <p onClick={() => navigate("/courses")}>Khóa học</p>
+                    <ChevronRight size={16} />
+                    <p>{course.name}</p>
                 </div>
-                <div className='course-detail-des'>
-                    <h2>Mô tả</h2>
-                    <p>{course.description}</p>
+                <div style={{ display: "flex", gap: 40, width: "100%" }}>
+                    <div className='course-detail-left'>
+                        <img className='course-detail-image' src={course.image.url || course.image} alt={course.name} />
+                        <h2>{course.name}</h2>
+                        <p><strong>Danh mục:</strong> {course.category}</p>
+                        <p><strong>Giá:</strong> {course.price} đ</p>
+                        {ownedAndActive ? (
+                            <button className='register-button' onClick={() => navigate(`/user/ownedCourse/${id}`)}>
+                                Tiếp tục học
+                            </button>
+                        ) : (
+                            <button className='register-button' onClick={handleRegister}>
+                                Đăng ký
+                            </button>
+                        )}
+
+                    </div>
+                    <div className='course-detail-des'>
+                        <h2>Mô tả</h2>
+                        <p>{course.description}</p>
+                    </div>
                 </div>
             </div>
             <Footer />
-        </Reveal>
+        </div>
     )
 }
 

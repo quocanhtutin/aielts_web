@@ -22,7 +22,8 @@ const upload = multer({
       "image/png",
       "image/webp",
       "audio/mpeg",
-      "audio/mp3"
+      "audio/mp3",
+      "application/pdf"
     ];
 
     if (allowed.includes(file.mimetype)) {

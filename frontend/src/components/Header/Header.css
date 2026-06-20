@@ -15,6 +15,7 @@
     max-width: 37vw;
     top: 0;
     left: 33%;
+    max-height: 100%;
 }
 
 
@@ -116,7 +117,7 @@
 
         figure.slider img {
             width: 100%;
-            object-fit: contain;
+            object-fit:cover;
             aspect-ratio: 16 / 9;
         }
 

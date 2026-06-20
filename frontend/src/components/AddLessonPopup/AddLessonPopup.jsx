@@ -30,12 +30,20 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
     //Xử lý thay đổi file
     const handleFileChange = (e) => {
         const { name, files } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: files[0] }));
+        handleUploadImage(name, files[0])
     };
 
     // Xóa file/video khỏi formData
-    const handleRemoveFile = (field) => {
-        setFormData((prev) => ({ ...prev, [field]: null }));
+    const handleRemoveFile = async (field) => {
+        if(typeof formData[field] === "object" && formData[field].public_id){
+            const res = await deleteFile(field)
+            if(res.success){
+                setFormData((prev) => ({ ...prev, [field]: null }));
+            }
+        }
+        else{
+            setFormData((prev) => ({ ...prev, [field]: null }));
+        }
     };
 
     const handleAddQuestion = () => {
@@ -63,15 +71,15 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
         e.preventDefault();
         setSaving(true)
 
-        const data = new FormData();
-        data.append("courseId", courseId);
-        data.append("number", formData.number);
-        data.append("title", formData.title);
-        if (formData.linkVideo) data.append("linkVideo", formData.linkVideo);
-        if (formData.linkPDF) data.append("pdf", formData.linkPDF);
-        if (formData.exercisePdf) data.append("exercisePdf", formData.exercisePdf);
-        if (formData.linkAudio) data.append("audio", formData.linkAudio);
-        data.append("questions", JSON.stringify(formData.questions));
+        const data = {};
+        data.courseId = courseId;
+        data.number = formData.number;
+        data.title = formData.title;
+        data.linkVideo = formData.linkVideo;
+        data.linkPDF = formData.linkPDF || {};
+        data.exercisePdf = formData.exercisePdf || {};
+        data.linkAudio = formData.linkAudio || {};
+        data.questions = JSON.stringify(formData.questions);
 
         try {
             const res = await axios.post(`${url}/api/course/addLesson`, data, {
@@ -106,15 +114,15 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
         e.preventDefault();
         setSaving(true)
 
-        const data = new FormData();
-        data.append("lessonId", editLesson._id);
-        data.append("number", formData.number);
-        data.append("title", formData.title);
-        if (formData.linkVideo && typeof formData.linkVideo == "string") data.append("linkVideo", formData.linkVideo);
-        if (formData.linkPDF && typeof formData.linkPDF !== "string") data.append("pdf", formData.linkPDF);
-        if (formData.exercisePdf && typeof formData.exercisePdf !== "string") data.append("exercisePdf", formData.exercisePdf);
-        if (formData.linkAudio && typeof formData.linkAudio !== "string") data.append("audio", formData.linkAudio);
-        data.append("questions", JSON.stringify(formData.questions));
+        const data = {};
+        data.lessonId = editLesson._id;
+        data.number = formData.number;
+        data.title = formData.title;
+        data.linkVideo = formData.linkVideo;
+        data.linkPDF = formData.linkPDF || {};
+        data.exercisePdf = formData.exercisePdf || {};
+        data.linkAudio = formData.linkAudio || {};
+        data.questions = JSON.stringify(formData.questions);
 
         try {
             const res = await axios.post(`${url}/api/course/updateLesson`, data, {
@@ -229,6 +237,41 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
         reader.readAsArrayBuffer(file);
     };
 
+    const uploadToServer = async (file) => {
+		const form = new FormData()
+		form.append('file', file)
+		const headers = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+		const res = await axios.post(`${url}/api/upload`, form, headers)
+		return res.data
+	}
+
+    const deleteFile = async (field) => {
+        const form = {
+            public_id: formData[field].public_id , 
+            resource_type: formData[field].resource_type || 'image'
+        }
+        const res = await axios.post(`${url}/api/upload/delete`, form, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        return res.data
+    }
+
+    const handleUploadImage = async (name, file) => {
+                if (!file) return
+                try {
+                    toast.info('Uploading file...')
+                    const data = await uploadToServer(file)
+                    const imgUrl = data?.url || data?.data || data
+                    setFormData(prev => ({ ...prev, [name]: imgUrl }));
+                    toast.success('File uploaded')
+                } catch (err) {
+                    console.error(err)
+                    toast.error('File upload failed')
+                }
+            }
+
     return (
         <div className="popup-overlay" onClick={onClose}>
             <div
@@ -277,9 +320,9 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
 
                     <div className="form-group">
                         <label>Tài liệu PDF</label>
-                        {formData.linkPDF && typeof formData.linkPDF === "string" ? (
+                        {formData.linkPDF && formData.linkPDF !== {} ? (
                             <div className="file-preview">
-                                <a href={formData.linkPDF} target="_blank" rel="noopener noreferrer">Xem tài liệu</a>
+                                <a href={formData.linkPDF.url||formData.linkPDF} target="_blank" rel="noopener noreferrer">Xem tài liệu</a>
                                 <button type="button" className="delete-btn" onClick={() => handleRemoveFile("pdf")}>×</button>
                             </div>
                         ) : (
@@ -294,9 +337,9 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
 
                     <div className="form-group">
                         <label>File PDF bài tập</label>
-                        {formData.exercisePdf && typeof formData.exercisePdf === "string" ? (
+                        {formData.exercisePdf && formData.exercisePdf !== {} ? (
                             <div className="file-preview">
-                                <a href={formData.exercisePdf} target="_blank" rel="noopener noreferrer">Xem bài tập</a>
+                                <a href={formData.exercisePdf.url || formData.exercisePdf} target="_blank" rel="noopener noreferrer">Xem bài tập</a>
                                 <button type="button" className="delete-btn" onClick={() => handleRemoveFile("exercisePdf")}>×</button>
                             </div>
                         ) : (
@@ -311,9 +354,9 @@ const AddLessonPopup = ({ courseId, courseCategory, onClose, onLessonAdded, edit
                     {courseCategory === "Listening" &&
                         <div className="form-group">
                             <label>File audio</label>
-                            {formData.linkAudio && typeof formData.linkAudio === "string" ? (
+                            {formData.linkAudio && formData.linkAudio !== {} ? (
                                 <div className="file-preview">
-                                    <a href={formData.linkAudio} target="_blank" rel="noopener noreferrer">Xem audio</a>
+                                    <a href={formData.linkAudio.url || formData.linkAudio} target="_blank" rel="noopener noreferrer">Xem audio</a>
                                     <button type="button" className="delete-btn" onClick={() => handleRemoveFile("linkAudio")}>×</button>
                                 </div>
                             ) : (

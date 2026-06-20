@@ -21,7 +21,7 @@
     font-size: 18px;
     /* background-color: whitesmoke; */
     padding: 30px;
-    border-radius: 20px;
+    border-radius: 12px;
     border: 1.5px solid rgb(36, 106, 164);
     /* box-shadow: 5px 5px rgba(0, 0, 0, 0.347); */
 
@@ -63,9 +63,9 @@
     width: 100%;
 }
 .add-product-name input, .add-product-description textarea{
-    padding: 10px;
+    padding: 6px 8px;
     width: 100%;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid #898989;
     font-size: 16px;
 }
@@ -76,9 +76,9 @@
 }
 .add-category-price select, .add-category-price input{
     font-size: 16px;
-    padding: 10px;
+    padding: 6px 8px;
     width: 50%;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid #898989;
 }
 .add-btn {
@@ -86,10 +86,10 @@
     color: white;
     font-weight: 500;
     font-size: 17px;
-    padding: 6px 6px;
+    padding: 6px 8px;
     background: rgb(36, 106, 164);
     font-size: max(1vm, 20px);
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
     text-align: center;
     float: right;

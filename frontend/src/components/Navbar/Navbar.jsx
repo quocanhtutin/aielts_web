@@ -40,6 +40,25 @@ const Navbar = ({ setShowLogin }) => {
 
     const isActive = (pattern) => path.includes(pattern);
 
+    const handleContactClick = (e) => {
+        e.preventDefault();
+        // If already on home page, scroll to footer
+        if (path === "/"||path === "/home"||path === "/courses"||path === "/cambridgelibrary"||path === "/publiccollection") {
+            const el = document.getElementById("footer");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+            else window.location.hash = "#footer";
+            return;
+        }
+
+        // Otherwise navigate to home then set hash / attempt to scroll
+        navigate("/");
+        setTimeout(() => {
+            const el = document.getElementById("footer");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+            else window.location.hash = "#footer";
+        }, 200);
+    };
+
     return (
         <div className={scrolled ? "navbarcom scrolled" : "navbarcom"}>
             <h1 onClick={() => navigate("/")}>AIELTS</h1>
@@ -74,7 +93,7 @@ const Navbar = ({ setShowLogin }) => {
                             Flashcard
                         </Link>
                         <Link to="/admin/testmanagement/home" className={isActive("/admin/testmanagement") ? "active" : ""}>
-                            Cambridge
+                            Đề luyện
                         </Link>
                     </>
                 )
@@ -94,9 +113,9 @@ const Navbar = ({ setShowLogin }) => {
                                 Flashcard
                             </Link>
                             <Link to="/cambridgelibrary" className={isActive("/cambridgelibrary") ? "active" : ""}>
-                                Cambridge
+                                Đề luyện
                             </Link>
-                            <a href="#footer">Liên hệ</a>
+                            <a href="#footer" onClick={handleContactClick}>Liên hệ</a>
                         </>
                     )}
 

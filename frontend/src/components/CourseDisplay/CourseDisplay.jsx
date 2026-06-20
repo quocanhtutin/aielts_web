@@ -6,7 +6,7 @@ import Reveal from '../Reveal/Reveal'
 const CourseDisplay = ({ courses, nav, deactivateCourse, activateCourse }) => {
 
     return (
-        <div className='course-display' id='course-dicplay'>
+        <div className='course-display' id='course-display'>
             <div className='course-display-list'>
                 {courses.map((item, index) => {
                     return (

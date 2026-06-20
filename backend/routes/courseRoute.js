@@ -9,33 +9,17 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Route thêm khóa học (ảnh)
-courseRouter.post("/addCourse", authMiddleWare, adminMiddleware, upload.fields([{ name: "image", maxCount: 1 }]), addCourse);
+courseRouter.post("/addCourse", authMiddleWare, adminMiddleware, addCourse);
 
 // Route thêm bài học (video + pdf)
-courseRouter.post(
-    "/addLesson", authMiddleWare, adminMiddleware,
-    upload.fields([
-        { name: "pdf", maxCount: 1 },
-        { name: "exercisePdf", maxCount: 1 },
-        { name: "audio", maxCount: 1 }
-    ]),
-    addLesson
-);
+courseRouter.post("/addLesson", authMiddleWare, adminMiddleware,addLesson);
 
-courseRouter.post(
-    "/updateLesson", authMiddleWare, adminMiddleware,
-    upload.fields([
-        { name: "pdf", maxCount: 1 },
-        { name: "exercisePdf", maxCount: 1 },
-        { name: "audio", maxCount: 1 }
-    ]),
-    lessonUpdate
-);
+courseRouter.post("/updateLesson", authMiddleWare, adminMiddleware,lessonUpdate);
 
 courseRouter.post("/deleteLesson", authMiddleWare, adminMiddleware, deleteLesson)
 
 courseRouter.post("/courseDetail", authMiddleWare, adminMiddleware, courseDetail)
-courseRouter.post("/courseUpdate", authMiddleWare, adminMiddleware, upload.fields([{ name: "image", maxCount: 1 }]), courseUpdate)
+courseRouter.post("/courseUpdate", authMiddleWare, adminMiddleware,  courseUpdate)
 courseRouter.get("/listCourse", listCourse)
 courseRouter.post("/deactivateCourse", authMiddleWare, adminMiddleware, deactivateCourse)
 courseRouter.post("/activateCourse", authMiddleWare, adminMiddleware, activateCourse)

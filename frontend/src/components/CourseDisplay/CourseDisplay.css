@@ -1,5 +1,5 @@
 .course-display{
-    padding: 0 100px;
+    padding: 0 100px 100px 100px;
 }
 .course-display-list{
     display: grid;
